@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".EmployeeProfile">
+
+    <include
+        android:id="@+id/employee_interface_toolbar"
+        layout="@layout/toolbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="145dp"
+        android:background="#1E88E5"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/employee_interface_toolbar"></LinearLayout>
+
+    <ImageView
+        android:id="@+id/employee_image"
+        android:layout_width="170dp"
+        android:layout_height="163dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.195"
+        app:srcCompat="@drawable/user_img" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/edit_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="48dp"
+        android:layout_marginRight="48dp"
+        android:layout_marginBottom="24dp"
+        android:clickable="true"
+        app:backgroundTint="#1E88E5"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_edit_black_24dp" />
+
+    <ScrollView
+        android:layout_width="395dp"
+        android:layout_height="549dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/employee_image">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="589dp">
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="35dp"
+                android:layout_marginLeft="35dp"
+                android:layout_marginTop="33dp"
+                android:text="Name:" />
+
+            <TextView
+                android:id="@+id/employee_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="85dp"
+                android:layout_marginLeft="85dp"
+                android:layout_marginTop="34dp"
+                android:layout_toEndOf="@+id/textView6"
+                android:layout_toRightOf="@+id/textView6"
+                android:text="TextView" />
+
+            <TextView
+                android:id="@+id/textView8"
+                android:layout_width="92dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textView6"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginStart="34dp"
+                android:layout_marginLeft="34dp"
+                android:layout_marginTop="33dp"
+                android:text="Employee ID:" />
+
+            <TextView
+                android:id="@+id/employee_id"
+                android:layout_width="96dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/employee_name"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginStart="33dp"
+                android:layout_marginLeft="33dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginEnd="139dp"
+                android:layout_marginRight="139dp"
+                android:layout_toEndOf="@+id/textView8"
+                android:layout_toRightOf="@+id/textView8"
+                android:text="TextView" />
+
+            <TextView
+                android:id="@+id/textView10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textView8"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginStart="36dp"
+                android:layout_marginLeft="36dp"
+                android:layout_marginTop="35dp"
+                android:text="Age:" />
+
+            <TextView
+                android:id="@+id/employee_age"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/employee_id"
+                android:layout_marginStart="101dp"
+                android:layout_marginLeft="101dp"
+                android:layout_marginTop="37dp"
+                android:layout_toEndOf="@+id/textView10"
+                android:layout_toRightOf="@+id/textView10"
+                android:text="TextView" />
+
+            <TextView
+                android:id="@+id/textView12"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textView10"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginStart="36dp"
+                android:layout_marginLeft="36dp"
+                android:layout_marginTop="31dp"
+                android:text="Sex:" />
+
+            <TextView
+                android:id="@+id/employee_sex"
+                android:layout_width="181dp"
+                android:layout_height="30dp"
+                android:layout_below="@+id/employee_age"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginStart="100dp"
+                android:layout_marginLeft="100dp"
+                android:layout_marginTop="29dp"
+                android:layout_marginEnd="52dp"
+                android:layout_marginRight="52dp"
+                android:layout_toEndOf="@+id/textView12"
+                android:layout_toRightOf="@+id/textView12"
+                android:text="TextView" />
+
+            <TextView
+                android:id="@+id/textView15"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textView12"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginStart="36dp"
+                android:layout_marginLeft="36dp"
+                android:layout_marginTop="38dp"
+                android:text="Role:" />
+
+            <TextView
+                android:id="@+id/employee_role"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/employee_sex"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginStart="161dp"
+                android:layout_marginLeft="161dp"
+                android:layout_marginTop="33dp"
+                android:text="TextView" />
+
+            <TextView
+                android:id="@+id/textView20"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textView15"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginStart="36dp"
+                android:layout_marginLeft="36dp"
+                android:layout_marginTop="26dp"
+                android:text="Email:" />
+
+            <TextView
+                android:id="@+id/employee_email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/employee_role"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginStart="89dp"
+                android:layout_marginLeft="89dp"
+                android:layout_marginTop="19dp"
+                android:layout_marginEnd="34dp"
+                android:layout_marginRight="34dp"
+                android:layout_toEndOf="@+id/textView20"
+                android:layout_toRightOf="@+id/textView20"
+                android:text="TextView" />
+
+            <TextView
+                android:id="@+id/textView24"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textView20"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginStart="34dp"
+                android:layout_marginLeft="34dp"
+                android:layout_marginTop="30dp"
+                android:text="User ID:" />
+
+            <TextView
+                android:id="@+id/user_id_txt"
+                android:layout_width="222dp"
+                android:layout_height="54dp"
+                android:layout_below="@+id/employee_email"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginStart="60dp"
+                android:layout_marginLeft="60dp"
+                android:layout_marginTop="38dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_toEndOf="@+id/textView24"
+                android:layout_toRightOf="@+id/textView24"
+                android:text="TextView" />
+
+        </RelativeLayout>
+    </ScrollView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
