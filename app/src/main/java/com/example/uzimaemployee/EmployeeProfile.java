@@ -28,7 +28,7 @@ import com.google.firebase.storage.StorageReference;
 
 public class EmployeeProfile extends AppCompatActivity {
     private FloatingActionButton editFloating;
-    private TextView nameText, employeeidText, ageText, sextText,roleText, emailText, useridTxt;
+    private TextView nameText, employeeidText, ambulanceText, companyText,roleText, emailText, useridTxt, secondNameText;
     private StorageReference storageReference;
     private FirebaseAuth mAuth;
     private FirebaseFirestore firebaseFirestore;
@@ -59,12 +59,12 @@ public class EmployeeProfile extends AppCompatActivity {
         editFloating = findViewById(R.id.edit_button);
         nameText = findViewById(R.id.employee_name);
         employeeidText = findViewById(R.id.employee_id);
-        ageText = findViewById(R.id.employee_age);
-        sextText = findViewById(R.id.employee_sex);
+        companyText = findViewById(R.id.employee_company);
+        ambulanceText = findViewById(R.id.employee_ambulance);
         roleText = findViewById(R.id.employee_role);
         employeeImage = findViewById(R.id.employee_image);
-        emailText = findViewById(R.id.employee_email);
         useridTxt = findViewById(R.id.user_id_txt);
+        secondNameText =findViewById(R.id.employee_sname);
         progressDialog=new ProgressDialog(this);
 
 
@@ -95,7 +95,7 @@ public class EmployeeProfile extends AppCompatActivity {
         editFloating.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(EmployeeProfile.this,EditEmployeeProfile.class));
+                startActivity(new Intent(EmployeeProfile.this,EmployeeCreation.class));
             }
         });
     }
@@ -119,13 +119,12 @@ public class EmployeeProfile extends AppCompatActivity {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
 
-                        String name2 = task.getResult().getString("name");
-                        String employeeId = task.getResult().getString("employee_id");
-                        String role = task.getResult().getString("role");
-                        String email = task.getResult().getString("email");
-                        String sexTxt = task.getResult().getString("sex:");
-                        String user_id = task.getResult().getString("user_id");
-                        String age = task.getResult().getString("age");
+                        String f_name = task.getResult().getString("first_name");
+                        String s_name = task.getResult().getString("second_name");
+                        String e_id = task.getResult().getString("employee_id");
+                        String e_role = task.getResult().getString("employee_role:");
+                        String company = task.getResult().getString("company");
+                        String ambulance = task.getResult().getString("ambulance");
                         String image2 = task.getResult().getString("image");
 
 
@@ -138,14 +137,15 @@ public class EmployeeProfile extends AppCompatActivity {
                         mainImageURI = Uri.parse(image2);
 
                         //attach to the various views
-
-                        nameText.setText(name2);
-                        employeeidText.setText(employeeId);
-                        ageText.setText(age);
-                        sextText.setText(sexTxt);
-                        roleText.setText(role);
-                        emailText.setText(email);
+                        nameText.setText(f_name);
+                        secondNameText.setText(s_name);
+                        employeeidText.setText(e_id);
+                        companyText.setText(company);
+                        ambulanceText.setText(ambulance);
+                        roleText.setText(e_role);
                         useridTxt.setText(user_id);
+
+
 
 
 

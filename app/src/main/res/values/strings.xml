@@ -2,9 +2,9 @@
     <string name="app_name">UzimaEmployee</string>
 
     <string-array name="shift">
-    <item>None</item>
-    <item>Day</item>
-    <item>Night</item>
+        <item>None</item>
+        <item>Day</item>
+        <item>Night</item>
     </string-array>
 
     <string-array name="team">
@@ -23,7 +23,6 @@
         <item>Male</item>
         <item>Female</item>
     </string-array>
-
 
 
     <string-array name="age">

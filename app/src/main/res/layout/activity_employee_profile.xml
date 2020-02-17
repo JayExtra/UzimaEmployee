@@ -76,8 +76,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
-                android:layout_marginStart="85dp"
-                android:layout_marginLeft="85dp"
+                android:layout_marginStart="79dp"
+                android:layout_marginLeft="79dp"
                 android:layout_marginTop="34dp"
                 android:layout_toEndOf="@+id/textView6"
                 android:layout_toRightOf="@+id/textView6"
@@ -121,16 +121,16 @@
                 android:layout_marginStart="36dp"
                 android:layout_marginLeft="36dp"
                 android:layout_marginTop="35dp"
-                android:text="Age:" />
+                android:text="Company:" />
 
             <TextView
-                android:id="@+id/employee_age"
+                android:id="@+id/employee_company"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/employee_id"
-                android:layout_marginStart="101dp"
-                android:layout_marginLeft="101dp"
-                android:layout_marginTop="37dp"
+                android:layout_marginStart="73dp"
+                android:layout_marginLeft="73dp"
+                android:layout_marginTop="41dp"
                 android:layout_toEndOf="@+id/textView10"
                 android:layout_toRightOf="@+id/textView10"
                 android:text="TextView" />
@@ -145,20 +145,20 @@
                 android:layout_marginStart="36dp"
                 android:layout_marginLeft="36dp"
                 android:layout_marginTop="31dp"
-                android:text="Sex:" />
+                android:text="Ambulance:" />
 
             <TextView
-                android:id="@+id/employee_sex"
+                android:id="@+id/employee_ambulance"
                 android:layout_width="181dp"
                 android:layout_height="30dp"
-                android:layout_below="@+id/employee_age"
+                android:layout_below="@+id/employee_company"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
-                android:layout_marginStart="100dp"
-                android:layout_marginLeft="100dp"
+                android:layout_marginStart="69dp"
+                android:layout_marginLeft="69dp"
                 android:layout_marginTop="29dp"
-                android:layout_marginEnd="52dp"
-                android:layout_marginRight="52dp"
+                android:layout_marginEnd="82dp"
+                android:layout_marginRight="82dp"
                 android:layout_toEndOf="@+id/textView12"
                 android:layout_toRightOf="@+id/textView12"
                 android:text="TextView" />
@@ -179,7 +179,7 @@
                 android:id="@+id/employee_role"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/employee_sex"
+                android:layout_below="@+id/employee_ambulance"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentLeft="true"
                 android:layout_marginStart="161dp"
@@ -188,59 +188,47 @@
                 android:text="TextView" />
 
             <TextView
-                android:id="@+id/textView20"
+                android:id="@+id/textView24"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/textView15"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentLeft="true"
-                android:layout_marginStart="36dp"
-                android:layout_marginLeft="36dp"
-                android:layout_marginTop="26dp"
-                android:text="Email:" />
-
-            <TextView
-                android:id="@+id/employee_email"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/employee_role"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_marginStart="89dp"
-                android:layout_marginLeft="89dp"
-                android:layout_marginTop="19dp"
-                android:layout_marginEnd="34dp"
-                android:layout_marginRight="34dp"
-                android:layout_toEndOf="@+id/textView20"
-                android:layout_toRightOf="@+id/textView20"
-                android:text="TextView" />
-
-            <TextView
-                android:id="@+id/textView24"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/textView20"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:layout_marginStart="34dp"
-                android:layout_marginLeft="34dp"
-                android:layout_marginTop="30dp"
+                android:layout_marginStart="35dp"
+                android:layout_marginLeft="35dp"
+                android:layout_marginTop="36dp"
                 android:text="User ID:" />
 
             <TextView
                 android:id="@+id/user_id_txt"
                 android:layout_width="222dp"
                 android:layout_height="54dp"
-                android:layout_below="@+id/employee_email"
+                android:layout_below="@+id/employee_role"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
-                android:layout_marginStart="60dp"
-                android:layout_marginLeft="60dp"
-                android:layout_marginTop="38dp"
-                android:layout_marginEnd="20dp"
-                android:layout_marginRight="20dp"
+                android:layout_marginStart="51dp"
+                android:layout_marginLeft="51dp"
+                android:layout_marginTop="25dp"
+                android:layout_marginEnd="31dp"
+                android:layout_marginRight="31dp"
                 android:layout_toEndOf="@+id/textView24"
                 android:layout_toRightOf="@+id/textView24"
+                android:text="TextView" />
+
+            <TextView
+                android:id="@+id/employee_sname"
+                android:layout_width="108dp"
+                android:layout_height="30dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginStart="19dp"
+                android:layout_marginLeft="19dp"
+                android:layout_marginTop="35dp"
+                android:layout_marginEnd="52dp"
+                android:layout_marginRight="52dp"
+                android:layout_toEndOf="@+id/employee_name"
+                android:layout_toRightOf="@+id/employee_name"
                 android:text="TextView" />
 
         </RelativeLayout>
