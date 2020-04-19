@@ -43,10 +43,11 @@ public class DeploymentDetails extends AppCompatActivity {
     private TextView titleText, statusText, incidentText , patientPhone, callNumber, descriptionText , userName;
     private Button navButton , pcrButton,finishButton;
     private static final int REQUEST_CALL =1;
+    String incident_d;
 
 
     private String emergency_post_id , latitude , longitude;
-    String number;
+    String number, distrUid;
     private ProgressDialog progressDialog;
     Dialog myDialog;
     Button yesBtn, noBtn;
@@ -107,6 +108,20 @@ public class DeploymentDetails extends AppCompatActivity {
             public void onClick(View view) {
 
                 startNavigation();
+
+            }
+        });
+
+        pcrButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent openPost = new Intent(DeploymentDetails.this, PcrReport.class);
+                openPost.putExtra("DISTRESSED_ID",distrUid);
+                openPost.putExtra("DEPLOYMENT_ID",emergency_post_id );
+                openPost.putExtra("INCIDENT",incident_d );
+
+                startActivity(openPost);
 
             }
         });
@@ -182,6 +197,9 @@ public class DeploymentDetails extends AppCompatActivity {
         progressDialog.show();
 
 
+        final String status = "done";
+
+
 
         DocumentReference docRef = firebaseFirestore.collection("Dispatch_Records").document(emergency_post_id);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -202,6 +220,17 @@ public class DeploymentDetails extends AppCompatActivity {
                         String d_status = task.getResult().getString("dispatch_status");
                         String d_num = task.getResult().getString("distressed_number");
                         String d_desc = task.getResult().getString("distressed_description");
+                        String d_uid =task.getResult().getString("distressed_uid");
+
+                        distrUid = d_uid;
+                        incident_d = d_title;
+
+
+                        if(d_status == status){
+
+                            finishButton.setVisibility(View.INVISIBLE);
+
+                        }
 
 
                         userName.setText(person_name);
@@ -212,6 +241,8 @@ public class DeploymentDetails extends AppCompatActivity {
                         descriptionText.setText(d_desc);
 
                         number = d_num;
+
+
 
 
 
@@ -289,7 +320,7 @@ public class DeploymentDetails extends AppCompatActivity {
         final String status2 = "done";
 
         DocumentReference docRef = firebaseFirestore.collection("Daily_Shift").document(user_id);
-        final DocumentReference docRef2 = firebaseFirestore.collection("Dispatch_Records").document(user_id);
+        final DocumentReference docRef2 = firebaseFirestore.collection("Dispatch_Records").document(emergency_post_id);
 
 // Set the "isCapital" field of the city 'DC'
         docRef
@@ -300,9 +331,7 @@ public class DeploymentDetails extends AppCompatActivity {
 
                         Toast.makeText(DeploymentDetails.this, "Success on Update", Toast.LENGTH_LONG).show();
 
-                        docRef2
-                                .update("dispatch_status",status2)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        docRef2.update("dispatch_status",status2).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
 

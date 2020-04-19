@@ -75,7 +75,8 @@ public class Deployments extends AppCompatActivity {
 
 
         //call method
-        firebaseFirestore.collection("Dispatch_Records").whereEqualTo("driver_identity",user_id).addSnapshotListener(Deployments.this,new EventListener<QuerySnapshot>() {
+        firebaseFirestore.collection("Dispatch_Records").whereEqualTo("driver_identity",user_id)
+                .addSnapshotListener(Deployments.this,new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
 

@@ -19,7 +19,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".DeploymentDetails"></activity>
+        <activity android:name=".VoiceRecorder"></activity>
+        <activity android:name=".PcrReport" />
+        <activity android:name=".DeploymentDetails" />
         <activity android:name=".Deployments" />
         <activity android:name=".EmployeeCreation" />
         <activity android:name=".EditEmployeeProfile" />

@@ -133,7 +133,7 @@ public class EmployeeCreation extends AppCompatActivity {
                         final String empRole = task.getResult().getString("role");
                         final String employeeId = task.getResult().getString("employee_id");
                         final String image2 = task.getResult().getString("drivers_image");
-                        String company_id = task.getResult().getString("company");
+                        final String company_id = task.getResult().getString("company");
                         final String ambulance = task.getResult().getString("ambulance");
 
 
@@ -172,6 +172,7 @@ public class EmployeeCreation extends AppCompatActivity {
                                         userMap.put("employee_role:",empRole);
                                         userMap.put("company",company_name);
                                         userMap.put("ambulance",ambulance);
+                                        userMap.put("company_id",company_id);
 
 
 

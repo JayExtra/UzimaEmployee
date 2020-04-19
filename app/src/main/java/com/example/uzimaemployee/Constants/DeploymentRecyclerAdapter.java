@@ -7,6 +7,7 @@ import android.location.Geocoder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +31,7 @@ public class DeploymentRecyclerAdapter extends RecyclerView.Adapter<DeploymentRe
     String dispatchId , latitude , longitude;
     List<Address>adresses;
     Geocoder geocoder;
+
 
     public DeploymentRecyclerAdapter(List<DeploymentsConstructor>deploymentList){
         this.deploymentsList = deploymentList;
@@ -58,7 +60,7 @@ public class DeploymentRecyclerAdapter extends RecyclerView.Adapter<DeploymentRe
         String title_text = deploymentsList.get(position).getDistressed_incident();
 
         String dispatch_status = deploymentsList.get(position).getDispatch_status();
-        holder.setStatus(dispatch_status);
+        holder.setVisib(dispatch_status);
 
         holder.setTitle(title_text);
 
@@ -108,6 +110,10 @@ public class DeploymentRecyclerAdapter extends RecyclerView.Adapter<DeploymentRe
         }
 
 
+
+
+
+
         holder.deployText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -118,6 +124,20 @@ public class DeploymentRecyclerAdapter extends RecyclerView.Adapter<DeploymentRe
                 openPost.putExtra("LONGITUDE",longitude);
 
                 context.startActivity(openPost);
+
+            }
+        });
+
+        holder.viewButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent openPost2 = new Intent(context, DeploymentDetails.class);
+                openPost2.putExtra("DOCUMENT_ID",emergencyPostId);
+                openPost2.putExtra("LATITUDE",latitude);
+                openPost2.putExtra("LONGITUDE",longitude);
+
+                context.startActivity(openPost2);
 
             }
         });
@@ -152,6 +172,7 @@ public class DeploymentRecyclerAdapter extends RecyclerView.Adapter<DeploymentRe
         private CardView emergencyCardview;
         private String status = "done";
         private TextView deployText;
+        private Button viewButton;
 
 
 
@@ -160,6 +181,7 @@ public class DeploymentRecyclerAdapter extends RecyclerView.Adapter<DeploymentRe
             mView = itemView;
 
             deployText = mView.findViewById(R.id.text_deploy);
+            viewButton = mView.findViewById(R.id.view_button);
 
 
         }
@@ -184,16 +206,21 @@ public class DeploymentRecyclerAdapter extends RecyclerView.Adapter<DeploymentRe
 
         }
 
-        public void setStatus(String statusText){
-
-            emergencyCardview = mView.findViewById(R.id.single_card);
-
-            if(statusText == status){
-
-                emergencyCardview.setVisibility(View.INVISIBLE);
 
 
+        public void setVisib( String statusTxt){
+
+            if (statusTxt == status){
+
+               deployText.setVisibility(View.INVISIBLE);
+               viewButton.setVisibility(View.VISIBLE);
+
+
+            }else{
+                deployText.setVisibility(View.VISIBLE);
+                viewButton.setVisibility(View.INVISIBLE);
             }
+
 
 
         }
