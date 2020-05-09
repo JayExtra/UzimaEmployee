@@ -117,8 +117,36 @@
                         android:layout_marginLeft="32dp"
                         android:layout_marginBottom="17dp"
                         android:text="Ambulance Deployments" />
+
                 </RelativeLayout>
             </androidx.cardview.widget.CardView>
+
+            <Button
+                android:id="@+id/share_audio"
+                android:layout_width="337dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="26dp"
+                android:layout_marginLeft="26dp"
+                android:layout_marginTop="195dp"
+                android:background="#D81B1B"
+                android:text="Share audio" />
+
+            <Button
+                android:id="@+id/share_pdf"
+                android:layout_width="336dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="24dp"
+                android:layout_marginLeft="24dp"
+                android:layout_marginTop="274dp"
+                android:background="#FDD835"
+                android:text="Share pdf" />
+
         </RelativeLayout>
     </ScrollView>
 

@@ -161,6 +161,7 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
             public void onClick(View view) {
                 Intent openRecorder = new Intent(PcrReport.this, VoiceRecorder.class);
                 openRecorder.putExtra("DISTRESSED_ID",distressed_id);
+                openRecorder.putExtra("DISTRESSED_NAME", patient);
                 startActivity(openRecorder);
             }
         });
