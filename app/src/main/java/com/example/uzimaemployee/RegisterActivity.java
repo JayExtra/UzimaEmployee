@@ -13,10 +13,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.GetTokenResult;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.iid.FirebaseInstanceId;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class RegisterActivity extends AppCompatActivity {
     private TextView loginText;
@@ -24,6 +32,7 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText emailText, passwrdText;
     private ProgressDialog progressDialog;
     private FirebaseAuth mAuth;
+    private FirebaseFirestore mFirebaseFirestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +41,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         FirebaseApp.initializeApp(this);
         mAuth= FirebaseAuth.getInstance();
+        mFirebaseFirestore = FirebaseFirestore.getInstance();
 
         //finding the different views
         progressDialog=new ProgressDialog(this);
@@ -80,9 +90,35 @@ public class RegisterActivity extends AppCompatActivity {
                 if(task.isSuccessful()){
                     //user is successfully registered start main domicile activity and log in
 
-                    finish();
-                    startActivity(new Intent(getApplicationContext(),LoginActivity.class));
-                    Toast.makeText(RegisterActivity.this,"Registration Successful",Toast.LENGTH_SHORT).show();
+
+                            String token_id = FirebaseInstanceId.getInstance().getToken();
+                            String current_id = mAuth.getCurrentUser().getUid();
+
+                            Map<String, Object> tokenMap = new HashMap<>();
+                            tokenMap.put("token_id" , token_id);
+
+                            mFirebaseFirestore.collection("Employee_Details").document(current_id).update(tokenMap)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+
+                                            finish();
+                                            startActivity(new Intent(getApplicationContext(),LoginActivity.class));
+                                            Toast.makeText(RegisterActivity.this,"Registration Successful",Toast.LENGTH_SHORT).show();
+
+
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+
+                                    Toast.makeText(RegisterActivity.this, "Error :.." + e.getMessage(),Toast.LENGTH_SHORT).show();
+
+                                }
+                            });
+
+
+
 
                 }else{
 

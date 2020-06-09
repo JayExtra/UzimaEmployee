@@ -82,6 +82,7 @@ public class EmployeeProfile extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(EmployeeProfile.this, MainActivity.class));
+                finish();
             }
         });
 
@@ -96,6 +97,7 @@ public class EmployeeProfile extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(EmployeeProfile.this,EmployeeCreation.class));
+                finish();
             }
         });
     }
@@ -128,12 +130,6 @@ public class EmployeeProfile extends AppCompatActivity {
                         String image2 = task.getResult().getString("image");
 
 
-
-
-
-
-
-
                         mainImageURI = Uri.parse(image2);
 
                         //attach to the various views
@@ -144,12 +140,6 @@ public class EmployeeProfile extends AppCompatActivity {
                         ambulanceText.setText(ambulance);
                         roleText.setText(e_role);
                         useridTxt.setText(user_id);
-
-
-
-
-
-
 
 
 
@@ -164,8 +154,9 @@ public class EmployeeProfile extends AppCompatActivity {
 //19-10-1996
                     } else {
 
-                        Toast.makeText(EmployeeProfile.this, "DATA DOES NOT EXISTS,PLEASE CREATE YOUR MEDICAL ID", Toast.LENGTH_LONG).show();
+                        Toast.makeText(EmployeeProfile.this, "SUCCESS", Toast.LENGTH_LONG).show();
                         startActivity(new Intent(EmployeeProfile.this,EditEmployeeProfile.class));
+                        finish();
 
 
 

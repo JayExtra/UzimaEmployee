@@ -40,7 +40,7 @@ public class DeploymentDetails extends AppCompatActivity {
     private String user_id;
     private Geocoder geocoder;
 
-    private TextView titleText, statusText, incidentText , patientPhone, callNumber, descriptionText , userName;
+    private TextView titleText, incidentText , patientPhone, callNumber, descriptionText , userName , depStatus;
     private Button navButton , pcrButton,finishButton;
     private static final int REQUEST_CALL =1;
     String incident_d;
@@ -83,7 +83,6 @@ public class DeploymentDetails extends AppCompatActivity {
         myDialog=new Dialog(this);
         progressDialog = new ProgressDialog(this);
         titleText =findViewById(R.id.title_text);
-        statusText =findViewById(R.id.status_text);
         incidentText =findViewById(R.id.incident_text);
         patientPhone =findViewById(R.id.phone_number);
         callNumber =findViewById(R.id.call_number);
@@ -92,6 +91,7 @@ public class DeploymentDetails extends AppCompatActivity {
         pcrButton =findViewById(R.id.pcr_button);
         finishButton =findViewById(R.id.button_finish);
         userName =findViewById(R.id.user_name);
+        depStatus = findViewById(R.id.text_status);
 
         //FETCH DETAILS
         emergency_post_id = getIntent().getStringExtra("DOCUMENT_ID");
@@ -236,7 +236,7 @@ public class DeploymentDetails extends AppCompatActivity {
                         userName.setText(person_name);
                         titleText.setText(d_title);
                         incidentText.setText(d_title);
-                        statusText.setText(d_status);
+                        depStatus.setText(d_status);
                         patientPhone.setText(d_num);
                         descriptionText.setText(d_desc);
 

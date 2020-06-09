@@ -381,7 +381,7 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
         final String temperatureRead =  tempText.getText().toString();
 
 
-        DocumentReference docRef = firebaseFirestore.collection("User_Med_IDs").document(distressed_id);
+        DocumentReference docRef = firebaseFirestore.collection("users").document(distressed_id);
         final DocumentReference docRef2 = firebaseFirestore.collection("Pcr_Reports").document(deployment_id);
 
 
@@ -395,8 +395,8 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
                     assert document != null;
                     if (document.exists()) {
                         String name2 = task.getResult().getString("name");
-                        String age = task.getResult().getString("age");
-                        String sex = task.getResult().getString("sex");
+                        String age = task.getResult().getString("user_age");
+                        String sex = task.getResult().getString("gender");
 
 
 
@@ -555,7 +555,7 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
             mypdfDocument.finishPage(myPage1);
 
 
-            File file = new File(Environment.getExternalStorageDirectory(),"/test.pdf");
+            File file = new File(Environment.getExternalStorageDirectory(),"/"+patient+".pdf");
 
 
             try{

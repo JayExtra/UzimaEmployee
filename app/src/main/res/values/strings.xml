@@ -227,4 +227,19 @@
         <item>Gluten Intolerance</item>
     </string-array>
 
+    <string-array name="reasons_array">
+        <item>None</item>
+        <item>Vehicle mechanical issues</item>
+        <item>Deployed elsewhere</item>
+        <item>Booked for an event</item>
+        <item>On my lunch break</item>
+        <item>Device problems</item>
+        <item>Other unspecified reason</item>
+    </string-array>
+
+
+    <string name="default_notification_channel_id">Uzima_CH_O1</string>
+    <string name="channel_name">Uzima_Main_Channel</string>
+    <string name="channel_description">Uzima communications channel between Admin and EMTs</string>
+
 </resources>

@@ -13,10 +13,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.GetTokenResult;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.iid.FirebaseInstanceId;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
     private TextView regText;
@@ -24,6 +32,8 @@ public class LoginActivity extends AppCompatActivity {
     private EditText emailText, passwrdText;
     private ProgressDialog progressDialog;
     private FirebaseAuth mAuth;
+    private FirebaseFirestore mFirebaseFirestore;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +43,7 @@ public class LoginActivity extends AppCompatActivity {
         //initialize Firebase app and get Firebase instance
         FirebaseApp.initializeApp(this);
         mAuth= FirebaseAuth.getInstance();
+        mFirebaseFirestore = FirebaseFirestore.getInstance();
 
         //check first if current user exists , if does starts main interface
         if(mAuth.getCurrentUser() !=null){
@@ -87,8 +98,35 @@ public class LoginActivity extends AppCompatActivity {
 
                 if(task.isSuccessful()){
                     //start choose account activity
-                    finish();
-                    startActivity(new Intent(getApplicationContext(),MainActivity.class));
+
+
+
+
+                            String token_id = FirebaseInstanceId.getInstance().getToken();
+                            String current_id = mAuth.getCurrentUser().getUid();
+
+                            Map<String, Object> tokenMap = new HashMap<>();
+                            tokenMap.put("token_id" , token_id);
+
+                            mFirebaseFirestore.collection("Employee_Details").document(current_id).update(tokenMap)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            finish();
+                                            startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+
+                                    Toast.makeText(LoginActivity.this, "Error :.." + e.getMessage(),Toast.LENGTH_SHORT).show();
+
+                                }
+                            });
+
+
+
+                    //
                 } else{
 
                     String errorMessage=task.getException().getMessage();

@@ -20,6 +20,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
@@ -50,6 +51,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
+import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     private Uri mainImageURI=null;
     private FloatingActionButton clockFloat;
     private CardView ambCard;
+    private Button mPdf , mAudio;
 
     private static final int REQUEST_LOCATION = 1;
 
@@ -98,6 +101,8 @@ public class MainActivity extends AppCompatActivity {
         roleText = findViewById(R.id.main_role);
         clockFloat = findViewById(R.id.floating_clock);
         ambCard = findViewById(R.id.ambulance_card);
+        mPdf = findViewById(R.id.share_pdf);
+        mAudio = findViewById(R.id.share_audio);
 
         //Request permission to access user location
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
@@ -126,10 +131,50 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(MainActivity.this ,Deployments.class));
+                finish();
+            }
+        });
+
+        mAudio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                shareAudio();
+
+            }
+        });
+
+        mPdf.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                sharePdf();
+
             }
         });
 
 
+
+
+    }
+
+    private void shareAudio() {
+
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath()
+                +  File.separator + "com.example.uzimaemployee" + File.separator);
+        intent.setDataAndType(uri, "*/*");
+        startActivity(Intent.createChooser(intent, "Open folder"));
+    }
+
+    private void sharePdf(){
+
+
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath()
+                +  File.separator + "com.example.uzimaemployee" + File.separator);
+        intent.setDataAndType(uri, "*/*");
+        startActivity(Intent.createChooser(intent, "Open folder"));
 
 
     }
@@ -245,10 +290,45 @@ public class MainActivity extends AppCompatActivity {
                 progressDialog.setMessage("Signing out...");
                 progressDialog.show();
 
-                mAuth.signOut();
-                finish();
-                startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                Map<String , Object> tokenMapRemove = new HashMap<>();
+                tokenMapRemove.put("token_id" ,FieldValue.delete());
+
+                firebaseFirestore.collection("Employee_Details").document(user_id).update(tokenMapRemove).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+
+                        mAuth.signOut();
+                        finish();
+                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                        Toast.makeText(MainActivity.this,"Error" + e.getMessage(),Toast.LENGTH_SHORT).show();
+
+                    }
+                });
+
                 return true;
+
+            case R.id.item1:
+
+                startActivity(new Intent(MainActivity.this, EmployeeProfile.class ));
+                finish();
+                Toast.makeText(MainActivity.this,"Loading profile...",Toast.LENGTH_SHORT).show();
+                return true;
+
+
+            case R.id.item2:
+
+                startActivity(new Intent(MainActivity.this, Notifications.class ));
+                finish();
+                Toast.makeText(MainActivity.this,"Fetching notifications...",Toast.LENGTH_SHORT).show();
+
+                return true;
+
 
             case R.id.contact_sup:
                 Toast.makeText(this, "contact was selected", Toast.LENGTH_SHORT).show();

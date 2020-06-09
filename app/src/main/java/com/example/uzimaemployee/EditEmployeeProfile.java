@@ -113,6 +113,7 @@ public class EditEmployeeProfile extends AppCompatActivity implements AdapterVie
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(EditEmployeeProfile.this, MainActivity.class));
+                finish();
             }
         });
 
