@@ -23,6 +23,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
 
         String messageTitle = remoteMessage.getNotification().getTitle();
         String messageBody = remoteMessage.getNotification().getBody();
+        String messageIcon = remoteMessage.getNotification().getIcon();
         String click_action = remoteMessage.getNotification().getClickAction();
         String dataMessage = remoteMessage.getData().get("message");
         String dataFrom = remoteMessage.getData().get("from_user_id");

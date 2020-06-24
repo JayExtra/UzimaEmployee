@@ -176,10 +176,10 @@ public class NotificationsRecyclerAdapter extends RecyclerView.Adapter<Notificat
 
                                         Map<String, Object> notification = new HashMap<>();
                                         notification.put("from", current_id);
-                                        notification.put("message", message);
+                                        notification.put("description", message);
                                         notification.put("status" , "denied");
 
-                                        mFirebaseFirestore.collection("Employee_Details/"+fromID+"/Notifications").document()
+                                        mFirebaseFirestore.collection("Dispatcher_Notification").document()
                                                 .set(notification)
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
@@ -354,9 +354,10 @@ public class NotificationsRecyclerAdapter extends RecyclerView.Adapter<Notificat
                                                 String message2 = "Proceeding towards the emergency scene";
                                                 Map<String , Object> adminNotification = new HashMap<>();
                                                 adminNotification.put("from",my_id);
-                                                adminNotification.put("message", message2);
+                                                adminNotification.put("description", message2);
+                                                adminNotification.put("status" , "accepted");
 
-                                                mFirebaseFirestore.collection("Employee_Details/"+fromID+"/Notifications").document()
+                                                mFirebaseFirestore.collection("Dispatcher_Notification").document()
                                                         .set(adminNotification)
                                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                             @Override
