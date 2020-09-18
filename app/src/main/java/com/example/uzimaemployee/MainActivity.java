@@ -361,7 +361,7 @@ public class MainActivity extends AppCompatActivity {
 
                     if (document.exists()) {
 
-                        Toast.makeText(MainActivity.this, "Welcome back", Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, "Shift already clocked in", Toast.LENGTH_LONG).show();
 
                         myDialog.dismiss();
 
@@ -411,6 +411,7 @@ public class MainActivity extends AppCompatActivity {
                                                 String e_role = task.getResult().getString("employee_role:");
                                                 String company = task.getResult().getString("company");
                                                 String ambulance = task.getResult().getString("ambulance");
+                                                String phnNum = task.getResult().getString("phone_number");
 
 
 
@@ -431,6 +432,7 @@ public class MainActivity extends AppCompatActivity {
                                                 shiftMap.put("user_id",user_id);
                                                 shiftMap.put("Status",status);
                                                 shiftMap.put("Location",geoPoint);
+                                                shiftMap.put("phone_number" , phnNum);
 
                                                 firebaseFirestore.collection("Daily_Shift").document(user_id)
                                                         .set(shiftMap)

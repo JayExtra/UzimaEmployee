@@ -37,6 +37,7 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
@@ -339,6 +340,7 @@ public class NotificationsRecyclerAdapter extends RecyclerView.Adapter<Notificat
                                 Map<String, Object> userNotification = new HashMap<>();
                                 userNotification.put("from", my_id);
                                 userNotification.put("message", myMessage);
+                                userNotification.put("timestamp",FieldValue.serverTimestamp());
 
 
                                 mFirebaseFirestore.collection("users/"+d_uid+"/Notifications").document()
@@ -356,6 +358,8 @@ public class NotificationsRecyclerAdapter extends RecyclerView.Adapter<Notificat
                                                 adminNotification.put("from",my_id);
                                                 adminNotification.put("description", message2);
                                                 adminNotification.put("status" , "accepted");
+                                                adminNotification.put("condition" , "new");
+                                                adminNotification.put("timestamp" , FieldValue.serverTimestamp());
 
                                                 mFirebaseFirestore.collection("Dispatcher_Notification").document()
                                                         .set(adminNotification)
