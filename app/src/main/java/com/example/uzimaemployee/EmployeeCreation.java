@@ -65,7 +65,7 @@ public class EmployeeCreation extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.employee_interface_toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitleTextColor(getResources().getColor(android.R.color.black));
-        getSupportActionBar().setTitle("Connect t o profile");
+        getSupportActionBar().setTitle("Connect to profile");
 
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp);
 
@@ -89,9 +89,7 @@ public class EmployeeCreation extends AppCompatActivity {
             public void onClick(View view) {
 
                 //get od first
-                getCompanyId();
-
-
+                //getCompanyId();
                 //setup details first...
                 setupProfile();
 
@@ -115,7 +113,7 @@ public class EmployeeCreation extends AppCompatActivity {
 
 
 
-        DocumentReference docRef = firebaseFirestore.collection("Company_Profiles/"+companyID+"/Drivers").document(empId);
+        DocumentReference docRef = firebaseFirestore.collection("Employee").document(empId);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -134,8 +132,14 @@ public class EmployeeCreation extends AppCompatActivity {
                         final String empRole = task.getResult().getString("role");
                         final String employeeId = task.getResult().getString("employee_id");
                         final String image2 = task.getResult().getString("drivers_image");
-                        final String company_id = task.getResult().getString("company");
                         final String ambulance = task.getResult().getString("ambulance");
+                        final String gender = task.getResult().getString("gender");
+                        final String contacts = task.getResult().getString("contact");
+                        final String email = task.getResult().getString("email");
+
+
+
+
 
 
 
@@ -143,24 +147,8 @@ public class EmployeeCreation extends AppCompatActivity {
 
                         //fetch company details
 
-                        progressDialog.setMessage("Fetching Company details...");
+                        progressDialog.setMessage("Finalising...");
                         progressDialog.show();
-
-
-
-
-                        DocumentReference docRef = firebaseFirestore.collection("Company_Profiles").document(company_id);
-                        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    progressDialog.dismiss();
-                                    DocumentSnapshot document = task.getResult();
-                                    if (document.exists()) {
-
-                                        Toast.makeText(EmployeeCreation.this, "Company details fetched", Toast.LENGTH_LONG).show();
-
-                                        String company_name = task.getResult().getString("company_name");
 
 
 
@@ -171,9 +159,11 @@ public class EmployeeCreation extends AppCompatActivity {
                                         userMap.put("second_name",name2);
                                         userMap.put("employee_id",employeeId);
                                         userMap.put("employee_role:",empRole);
-                                        userMap.put("company",company_name);
                                         userMap.put("ambulance",ambulance);
-                                        userMap.put("company_id",company_id);
+                                        userMap.put("gender",gender);
+                                        userMap.put("phone_number",contacts);
+                                        userMap.put("email" ,email);
+
 
 
 
@@ -202,45 +192,12 @@ public class EmployeeCreation extends AppCompatActivity {
 
                                                 });
 
-
-
-
-
-
 //19-10-1996
-                                    } else {
 
 
-
-                                    }
-                                } else {
-
-                                    String error = task.getException().getMessage();
-                                    Toast.makeText(EmployeeCreation.this, "(FIRESTORE RETRIEVE ERROR):" + error, Toast.LENGTH_LONG).show();
-
-
-                                }
-
-
-
-                            }
-                        });
-
-
-
-
-
-
-
-
-
-
-
-
-//19-10-1996
                     } else {
 
-                        Toast.makeText(EmployeeCreation.this, "Error: Seems like your profile is not with us, please contact your company", Toast.LENGTH_LONG).show();
+                        Toast.makeText(EmployeeCreation.this, "Seems like your profile is not with us. Please check your Id again or contact the Headquarters", Toast.LENGTH_LONG).show();
 
 
 
@@ -257,9 +214,6 @@ public class EmployeeCreation extends AppCompatActivity {
 
             }
         });
-
-
-
 
 
 

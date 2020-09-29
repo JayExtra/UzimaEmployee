@@ -22,6 +22,7 @@ import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -89,7 +90,9 @@ public class Notifications extends AppCompatActivity {
 
         //fetch documents from firestore and set into the recycler adapter
 
-        firebaseFirestore.collection("Employee_Details").document(user_id).collection("Notifications").whereEqualTo("myId",user_id)
+        firebaseFirestore.collection("Employee_Details").document(user_id).collection("Notifications")
+                .whereEqualTo("myId",user_id)
+                .orderBy("timestamp" , Query.Direction.DESCENDING)
                 .addSnapshotListener(Notifications.this,new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
@@ -119,11 +122,6 @@ public class Notifications extends AppCompatActivity {
 
                     }
                 });
-
-
-
-
-
 
     }
 }

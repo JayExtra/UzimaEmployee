@@ -10,17 +10,21 @@ import androidx.core.app.ActivityCompat;
 import android.Manifest;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
@@ -37,6 +41,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.uzimaemployee.LocationService.LocationService;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -81,6 +86,8 @@ public class MainActivity extends AppCompatActivity {
     String firstName, ambulanceData,companyData,employeeId,userID, employeeName,employeeID, statusData,shiftData,teamData;
     Timestamp timeinData,timeoutData;
 
+    double lat , lng;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,13 +112,37 @@ public class MainActivity extends AppCompatActivity {
         mAudio = findViewById(R.id.share_audio);
 
         //Request permission to access user location
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
-        getUserLocation();
+        if(Build.VERSION.SDK_INT >= 23){
+            if(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                //Request Location
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION} , 1 );
+
+
+            }else{
+                //Req location
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        startService();
+                    }
+                }, 2000);
+
+            }
+        }else{
+            //start the location service
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    startService();
+                }
+            }, 3000);
+        }
+        //getUserLocation();
 
 
         Toolbar toolbar = findViewById(R.id.employee_interface_toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitleTextColor(getResources().getColor(android.R.color.black));
+        toolbar.setTitleTextColor(getResources().getColor(android.R.color.white));
 
 
         //check if user account is setup
@@ -389,8 +420,8 @@ public class MainActivity extends AppCompatActivity {
                             public void onClick(View view) {
 
 
-                                final Double lat =  Double.parseDouble(latitude);
-                                final Double lng =  Double.parseDouble(longitude);
+                                 lat =  Double.parseDouble(latitude);
+                                 lng =  Double.parseDouble(longitude);
 
                                 final GeoPoint geoPoint=new GeoPoint(lat,lng);
 
@@ -409,7 +440,6 @@ public class MainActivity extends AppCompatActivity {
                                                 String s_name = task.getResult().getString("second_name");
                                                 String e_id = task.getResult().getString("employee_id");
                                                 String e_role = task.getResult().getString("employee_role:");
-                                                String company = task.getResult().getString("company");
                                                 String ambulance = task.getResult().getString("ambulance");
                                                 String phnNum = task.getResult().getString("phone_number");
 
@@ -425,7 +455,6 @@ public class MainActivity extends AppCompatActivity {
                                                 shiftMap.put("second_name",s_name);
                                                 shiftMap.put("employee_id",e_id);
                                                 shiftMap.put("role",e_role);
-                                                shiftMap.put("company",company);
                                                 shiftMap.put("ambulance",ambulance);
                                                 shiftMap.put("time_in", FieldValue.serverTimestamp());
                                                 shiftMap.put("time_out",null);
@@ -624,7 +653,6 @@ public class MainActivity extends AppCompatActivity {
         shiftMap.put("Status",statusData);
         shiftMap.put("time_in", timeinData);
         shiftMap.put("time_out", timeoutData);
-        shiftMap.put("company", companyData);
         shiftMap.put("ambulance", ambulanceData);
         shiftMap.put("user_id", user_id);
 
@@ -679,7 +707,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
+/*
     private void getUserLocation() {
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -759,6 +787,35 @@ public class MainActivity extends AppCompatActivity {
         });
         final AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }*/
+
+    void startService(){
+        LocationBroadcastReceiver receiver = new LocationBroadcastReceiver();
+        IntentFilter filter = new IntentFilter("ACTION_LOC");
+        registerReceiver(receiver , filter);
+
+        Intent intent = new Intent(MainActivity.this , LocationService.class);
+        startService(intent);
+    }
+
+    public class LocationBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals("ACTION_LOC")){
+
+                lat = intent.getDoubleExtra("latitude" , 0f);
+                lng = intent.getDoubleExtra("longitude" , 0f);
+
+                longitude=Double.toString(lng);
+                latitude = Double.toString(lat);
+
+                Toast.makeText(MainActivity.this ,  "Help! Location:.\nLatitude:" +latitude+ "\nLongitude:" +longitude ,Toast.LENGTH_SHORT).show();
+
+
+            }
+
+        }
     }
 
 

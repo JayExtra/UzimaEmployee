@@ -97,6 +97,8 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+
+
     private void startForgotPassword() {
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);

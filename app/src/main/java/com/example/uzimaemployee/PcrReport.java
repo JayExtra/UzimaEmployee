@@ -26,10 +26,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -56,14 +59,15 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
     private FirebaseFirestore firebaseFirestore;
     private FirebaseAuth firebaseAuth;
     private String user_id;
+    private ImageView userImage;
     private TextView nameText, ageText, genderText;
     private Button subButton;
     private FloatingActionButton floatRecord, floatClock;
     private Spinner spinnerDiastol,spinnerSystol , spinnerHistory;
-    private EditText tempText, emtRemarks;
+    private EditText tempText, emtRemarks , emtHospital;
     private ProgressDialog progressDialog;
-    String distressed_id , diastol_read , systol_read, history_read,deployment_id,incident_D, patient , patAge , patGender;
-    String ambulance,role,writer,company,employeeId;
+    String distressed_id , diastol_read , systol_read, history_read,deployment_id,incident_D, patient , patAge , patGender ,hospital_taken;
+    String ambulance,role,writer,employeeId;
 
     Bitmap bmp , scaleBmp;
     int pageWidth = 1200;
@@ -96,7 +100,7 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(PcrReport.this, MainActivity.class));
+                startActivity(new Intent(PcrReport.this, DeploymentDetails.class));
             }
         });
 
@@ -123,6 +127,8 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
         spinnerHistory = findViewById(R.id.history_spinner);
         tempText = findViewById(R.id.temperature_text);
         emtRemarks = findViewById(R.id.emt_remarks);
+        emtHospital = findViewById(R.id.text_hospital);
+        userImage = findViewById(R.id.user_image);
 
         bmp = BitmapFactory.decodeResource(getResources(),R.drawable.uzimalogo);
         scaleBmp = Bitmap.createScaledBitmap(bmp , 165,201,false);
@@ -235,6 +241,15 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
                         String name2 = task.getResult().getString("name");
                         String age = task.getResult().getString("user_age");
                         String sex = task.getResult().getString("gender");
+                        String image =  task.getResult().getString("image");
+
+
+
+                        RequestOptions placeholderRequest = new RequestOptions();
+                        placeholderRequest.placeholder(R.drawable.user_img);
+                        Glide.with(PcrReport.this).setDefaultRequestOptions(placeholderRequest).load(image).into(userImage);
+
+
 
                         nameText.setText(name2);
                         ageText.setText(age);
@@ -280,11 +295,7 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
                         ambulance = task.getResult().getString("ambulance");
                         role = task.getResult().getString("employee_role:");
                         writer = task.getResult().getString("first_name");
-                        company = task.getResult().getString("company");
                         employeeId = task.getResult().getString("employee_id");
-
-
-
 
 
                     } else {
@@ -313,11 +324,16 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
         progressDialog.setMessage("Clocking departure...");
         progressDialog.show();
 
+        final String hospitalTaken = emtHospital.getText().toString();
+
+        hospital_taken = hospitalTaken;
+
 
 
         Map<String, Object> userMap= new HashMap<>();
 
         userMap.put("patient_name",null);
+        userMap.put("patient_image" , null);
         userMap.put("patient_age",null);
         userMap.put("patient_gender",null);
         userMap.put("incident",null);
@@ -332,7 +348,7 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
         userMap.put("role",role);
         userMap.put("employee_id",employeeId);
         userMap.put("ambulance",ambulance);
-        userMap.put("company",company);
+        userMap.put("hospital",hospitalTaken);
 
 
 
@@ -345,6 +361,10 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
                     public void onSuccess(Void aVoid) {
                         progressDialog.dismiss();
                         Toast.makeText(PcrReport.this,"Ambulance request sent",Toast.LENGTH_LONG).show();
+
+                        informDispatcher(hospitalTaken , writer , employeeId ,deployment_id ,ambulance);
+
+
 
 
                     }
@@ -368,6 +388,39 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
 
     }
 
+    private void informDispatcher(String hospitalTaken, String writer, String employeeId, String deployment_id, String ambulance) {
+
+
+        //2.notify dispatcher
+
+        String message2 = " Ambulance plate:"+ambulance+". \n Moving from emergency scene heading towards "+hospitalTaken+"\n Dispatch id: "+deployment_id;
+        Map<String , Object> adminNotification = new HashMap<>();
+        adminNotification.put("from",user_id);
+        adminNotification.put("description", message2);
+        adminNotification.put("status" , "on-route");
+        adminNotification.put("condition" , "new");
+        adminNotification.put("timestamp" , FieldValue.serverTimestamp());
+
+        firebaseFirestore.collection("Dispatcher_Notification").document()
+                .set(adminNotification).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+
+                Toast.makeText(PcrReport.this, "Dispatcher has been informed", Toast.LENGTH_LONG).show();
+
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+                Toast.makeText(PcrReport.this, "Could not inform dispatcher"+e.getMessage(), Toast.LENGTH_LONG).show();
+
+
+            }
+        });
+    }
+
     public void sendToDatabase(){
 
         progressDialog.setMessage("sending PCR report...");
@@ -379,6 +432,7 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
 
         final String emtRmks =  emtRemarks.getText().toString();
         final String temperatureRead =  tempText.getText().toString();
+
 
 
         DocumentReference docRef = firebaseFirestore.collection("users").document(distressed_id);
@@ -397,6 +451,7 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
                         String name2 = task.getResult().getString("name");
                         String age = task.getResult().getString("user_age");
                         String sex = task.getResult().getString("gender");
+                        String image = task.getResult().getString("image");
 
 
 
@@ -411,6 +466,7 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
                                         "historical_illnesses",history_read,
                                         "patient_age",age,
                                         "patient_gender",sex,
+                                        "patient_image" , image,
                                         "patient_name",name2,
                                         "syastol_read",systol_read,
                                         "temperature",temperatureRead,
@@ -425,6 +481,8 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
                                         progressDialog.dismiss();
 
                                         Toast.makeText(PcrReport.this,"Success Yes!!",Toast.LENGTH_LONG).show();
+
+                                        notifyDispatcher(deployment_id);
 
 
                                     }
@@ -468,6 +526,40 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
 
 
 
+
+
+    }
+
+    private void notifyDispatcher(String deployment_id) {
+
+        //2.notify dispatcher
+
+        String message2 = " Deployment "+deployment_id+" Success. \n Patient has arrived at hospital and handed over";
+        Map<String , Object> adminNotification = new HashMap<>();
+        adminNotification.put("from",user_id);
+        adminNotification.put("description", message2);
+        adminNotification.put("status" , "Done");
+        adminNotification.put("condition" , "new");
+        adminNotification.put("timestamp" , FieldValue.serverTimestamp());
+
+        firebaseFirestore.collection("Dispatcher_Notification").document()
+                .set(adminNotification).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+
+                Toast.makeText(PcrReport.this, "Dispatcher has been informed", Toast.LENGTH_LONG).show();
+
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+                Toast.makeText(PcrReport.this, "Could not inform dispatcher"+e.getMessage(), Toast.LENGTH_LONG).show();
+
+
+            }
+        });
 
 
     }
@@ -546,7 +638,7 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
             canvas.drawText(emtRemarks.getText().toString(),700,1300,myPaint);
             canvas.drawText("EMT name:" + writer,700,1350,myPaint);
             canvas.drawText("Role:" + role,700,1400,myPaint);
-            canvas.drawText("Company:" + company,700,1450,myPaint);
+            canvas.drawText("Hospital:" + hospital_taken,700,1450,myPaint);
             canvas.drawText("Ambulance:" + ambulance,700,1500,myPaint);
 
 

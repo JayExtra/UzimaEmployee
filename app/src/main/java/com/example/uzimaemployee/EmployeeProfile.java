@@ -96,7 +96,7 @@ public class EmployeeProfile extends AppCompatActivity {
         editFloating.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(EmployeeProfile.this,EmployeeCreation.class));
+                startActivity(new Intent(EmployeeProfile.this,EditEmployeeProfile.class));
                 finish();
             }
         });

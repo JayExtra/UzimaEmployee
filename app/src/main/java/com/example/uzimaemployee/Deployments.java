@@ -53,7 +53,7 @@ public class Deployments extends AppCompatActivity {
         getSupportActionBar().setTitle("Deployments");
 
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp);
-        toolbar.setTitleTextColor(getResources().getColor(android.R.color.black));
+        toolbar.setTitleTextColor(getResources().getColor(android.R.color.white));
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
