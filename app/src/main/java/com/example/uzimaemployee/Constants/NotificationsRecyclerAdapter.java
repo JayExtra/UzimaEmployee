@@ -342,6 +342,7 @@ public class NotificationsRecyclerAdapter extends RecyclerView.Adapter<Notificat
                                 final String drv_identity = task.getResult().getString("driver_identity");
                                 final String drv_number = task.getResult().getString("driver_number");
                                 final String drv_status = task.getResult().getString("driver_status");
+                                final String disp_condition = task.getResult().getString("dispatch_condition");
 
 
                                 //Log.d("Id check:", "onComplete: "+d_uid);
@@ -371,7 +372,7 @@ public class NotificationsRecyclerAdapter extends RecyclerView.Adapter<Notificat
                                                 //sends notificaion to admin only if dispatch information is from admin
                                                 sendToAdmin(d_ambulance,d_driver ,d_date ,
                                                         d_status,d_location ,d_county ,d_description ,d_email ,d_incident , d_number ,
-                                                        d_person ,d_uid ,drv_id , drv_identity , drv_number , drv_status ,my_id);
+                                                        d_person ,d_uid ,drv_id , drv_identity , drv_number , drv_status ,my_id ,disp_condition);
 
                                                 holder.mProgressBar.setVisibility(View.INVISIBLE);
 
@@ -383,7 +384,7 @@ public class NotificationsRecyclerAdapter extends RecyclerView.Adapter<Notificat
                                                 //this will send notification to user and admin
                                                sendToUserAdmin(d_ambulance,d_driver ,d_date ,
                                                         d_status,d_location ,d_county ,d_description ,d_email ,d_incident , d_number ,
-                                                        d_person ,d_uid ,drv_id , drv_identity , drv_number , drv_status ,my_id);
+                                                        d_person ,d_uid ,drv_id , drv_identity , drv_number , drv_status ,my_id,disp_condition);
 
                                                 holder.mProgressBar.setVisibility(View.INVISIBLE);
 
@@ -453,7 +454,7 @@ public class NotificationsRecyclerAdapter extends RecyclerView.Adapter<Notificat
     private void sendToAdmin(final String d_ambulance, final String d_driver, final String d_date, final String d_status,
                              final GeoPoint d_location, final String d_county, final String d_description, final String d_email,
                              final String d_incident, final String d_number, final String d_person, final String d_uid, final String drv_id,
-                             final String drv_identity, final String drv_number, final String drv_status, final String my_id) {
+                             final String drv_identity, final String drv_number, final String drv_status, final String my_id, final String disp_condition) {
 
         //2.notify dispatcher
 
@@ -491,6 +492,8 @@ public class NotificationsRecyclerAdapter extends RecyclerView.Adapter<Notificat
                         dispatchInfo.put("driver_identity" , drv_identity);
                         dispatchInfo.put("driver_number" , drv_number);
                         dispatchInfo.put("driver_status" , drv_status);
+                        dispatchInfo.put("dispatch_condition" , disp_condition);
+
 
                         mFirebaseFirestore.collection("Dispatch_Records").document().set(dispatchInfo)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -551,7 +554,7 @@ public class NotificationsRecyclerAdapter extends RecyclerView.Adapter<Notificat
     private void sendToUserAdmin(final String d_ambulance, final String d_driver, final String d_date, final String d_status,
                                  final GeoPoint d_location, final String d_county, final String d_description,
                                  final String d_email, final String d_incident, final String d_number, final String d_person,
-                                 final String d_uid, final String drv_id, final String drv_identity, final String drv_number, final String drv_status , final String my_id) {
+                                 final String d_uid, final String drv_id, final String drv_identity, final String drv_number, final String drv_status, final String my_id, final String disp_condition) {
 
 
 
@@ -610,6 +613,7 @@ public class NotificationsRecyclerAdapter extends RecyclerView.Adapter<Notificat
                                         dispatchInfo.put("driver_identity" , drv_identity);
                                         dispatchInfo.put("driver_number" , drv_number);
                                         dispatchInfo.put("driver_status" , drv_status);
+                                        dispatchInfo.put("dispatch_condition" , disp_condition);
 
                                         mFirebaseFirestore.collection("Dispatch_Records").document().set(dispatchInfo)
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {

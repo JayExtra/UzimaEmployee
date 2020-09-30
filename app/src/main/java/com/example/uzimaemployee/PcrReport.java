@@ -61,12 +61,12 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
     private String user_id;
     private ImageView userImage;
     private TextView nameText, ageText, genderText;
-    private Button subButton;
+    private Button subButton ,sub2Button;
     private FloatingActionButton floatRecord, floatClock;
-    private Spinner spinnerDiastol,spinnerSystol , spinnerHistory;
-    private EditText tempText, emtRemarks , emtHospital;
+    private Spinner spinnerDiastol,spinnerSystol , spinnerHistory ,spinnerGender;
+    private EditText tempText, emtRemarks , emtHospital ,patientName , patientAge;
     private ProgressDialog progressDialog;
-    String distressed_id , diastol_read , systol_read, history_read,deployment_id,incident_D, patient , patAge , patGender ,hospital_taken;
+    String distressed_id , diastol_read , systol_read, history_read,deployment_id,incident_D, patient , patAge , patGender , patImage ,hospital_taken , patient_gender;
     String ambulance,role,writer,employeeId;
 
     Bitmap bmp , scaleBmp;
@@ -100,7 +100,9 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(PcrReport.this, DeploymentDetails.class));
+                Intent intent = new Intent(PcrReport.this , DeploymentDetails.class);
+                intent.putExtra("DOCUMENT_ID" , deployment_id);
+                startActivity(intent);
             }
         });
 
@@ -129,6 +131,10 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
         emtRemarks = findViewById(R.id.emt_remarks);
         emtHospital = findViewById(R.id.text_hospital);
         userImage = findViewById(R.id.user_image);
+        patientAge = findViewById(R.id.age_text);
+        spinnerGender = findViewById(R.id.gender_sp);
+       // sub2Button = findViewById(R.id.button_send_2);
+
 
         bmp = BitmapFactory.decodeResource(getResources(),R.drawable.uzimalogo);
         scaleBmp = Bitmap.createScaledBitmap(bmp , 165,201,false);
@@ -143,6 +149,11 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
         spinnerDiastol.setOnItemSelectedListener(this);
 
 
+
+        ArrayAdapter<CharSequence> genderAdapter = ArrayAdapter.createFromResource(this,R.array.gender,android.R.layout.simple_spinner_item);
+        genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerGender.setAdapter(genderAdapter);
+        spinnerGender.setOnItemSelectedListener(this);
 
         ArrayAdapter<CharSequence> systolAdapter = ArrayAdapter.createFromResource(this,R.array.bp,android.R.layout.simple_spinner_item);
         systolAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -184,9 +195,6 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
 
 
 
-
-
-
     }
 
     @Override
@@ -216,6 +224,14 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
 
         }
 
+        Spinner spin4 = (Spinner)parent;
+        if(spin4.getId() == R.id.gender_sp)
+        {
+            String txt4 = parent.getItemAtPosition(position).toString();
+            patient_gender=txt4;
+
+        }
+
 
 
 
@@ -225,7 +241,7 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
-        Toast.makeText(PcrReport.this,"Please fill the required forms",Toast.LENGTH_SHORT).show();
+        Toast.makeText(PcrReport.this,"Please select the required gender or diastol and syastol read",Toast.LENGTH_SHORT).show();
 
     }
 
@@ -238,31 +254,31 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
+
                         String name2 = task.getResult().getString("name");
                         String age = task.getResult().getString("user_age");
                         String sex = task.getResult().getString("gender");
                         String image =  task.getResult().getString("image");
 
 
-
-                        RequestOptions placeholderRequest = new RequestOptions();
-                        placeholderRequest.placeholder(R.drawable.user_img);
-                        Glide.with(PcrReport.this).setDefaultRequestOptions(placeholderRequest).load(image).into(userImage);
-
-
-
-                        nameText.setText(name2);
-                        ageText.setText(age);
-                        genderText.setText(sex);
-
-                        patient = name2;
-                        patAge = age;
-                        patGender = sex;
+                        checkDispatchDetails(name2 , age , sex , image);
 
 
                     } else {
 
-                        Toast.makeText(PcrReport.this,"Does not exist",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(PcrReport.this,"Does not exist , this is dispatcher",Toast.LENGTH_SHORT).show();
+
+                        patientAge.setVisibility(View.VISIBLE);
+                        spinnerGender.setVisibility(View.VISIBLE);
+
+                        loadDistressedName();
+
+                       // subButton.setVisibility(View.INVISIBLE);
+
+                        Glide.with(PcrReport.this).load(R.drawable.user_img).into(userImage);
+
+
+
 
 
                     }
@@ -274,6 +290,141 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
                 }
             }
         });
+
+
+
+    }
+
+    private void loadDistressedName() {
+
+        DocumentReference docRef4 = firebaseFirestore.collection("Dispatch_Records").document(deployment_id);
+        docRef4.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                if(task.isSuccessful()){
+                    DocumentSnapshot document = task.getResult();
+
+                    if(document.exists()){
+
+                        String name = task.getResult().getString("distressed_person");
+
+                        nameText.setText(name);
+                        patient = name;
+
+                    }else{
+
+                        Toast.makeText(PcrReport.this,"Cannot fetch name of the distressed person!!",Toast.LENGTH_LONG).show();
+
+
+
+                    }
+
+                }else{
+
+                    Toast.makeText(PcrReport.this,"Could not fetch document of distressed person!",Toast.LENGTH_LONG).show();
+
+
+                }
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+                Toast.makeText(PcrReport.this,"Error 4 :" + e.getMessage(),Toast.LENGTH_LONG).show();
+
+
+            }
+        });
+
+    }
+
+    private void checkDispatchDetails(final String name2, final String age, final String sex, final String image) {
+
+
+
+
+        DocumentReference docRef4 = firebaseFirestore.collection("Dispatch_Records").document(deployment_id);
+        docRef4.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                if(task.isSuccessful()){
+                    DocumentSnapshot document = task.getResult();
+
+                    if(document.exists()){
+
+                        String cndtn = task.getResult().getString("dispatch_condition");
+                        String condition = "reported";
+
+                        if(cndtn.equals(condition)){
+
+                            Toast.makeText(PcrReport.this,"Condition is:"+condition,Toast.LENGTH_SHORT).show();
+
+
+                            patientAge.setVisibility(View.VISIBLE);
+                            spinnerGender.setVisibility(View.VISIBLE);
+
+                            patient = name2;
+
+
+                        }else{
+
+                            Toast.makeText(PcrReport.this,"Dispatch is personal",Toast.LENGTH_LONG).show();
+
+
+
+                            patientAge.setVisibility(View.GONE);
+                            spinnerGender.setVisibility(View.GONE);
+
+                            nameText.setText(name2);
+                            ageText.setText(age);
+                            genderText.setText(sex);
+                            Glide.with(PcrReport.this).load(image).into(userImage);
+
+                            patient = name2;
+                            patAge = age;
+                            patGender = sex;
+                            patImage = image;
+
+
+                        }
+
+
+
+                    }else{
+
+                        Toast.makeText(PcrReport.this,"Cant perform dispatch analysis",Toast.LENGTH_LONG).show();
+
+
+
+
+
+                    }
+
+
+                }else{
+
+                    Toast.makeText(PcrReport.this,"Cannot get the document for analysis!!",Toast.LENGTH_LONG).show();
+
+
+                }
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(PcrReport.this,"Error!!" + e.getMessage(),Toast.LENGTH_LONG).show();
+
+
+            }
+        });
+
+
+
+
+
 
 
 
@@ -426,8 +577,8 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
         progressDialog.setMessage("sending PCR report...");
         progressDialog.show();
 
-
-
+        //DocumentReference docRef = firebaseFirestore.collection("users").document(distressed_id);
+        final DocumentReference docRef2 = firebaseFirestore.collection("Pcr_Reports").document(deployment_id);
 
 
         final String emtRmks =  emtRemarks.getText().toString();
@@ -435,98 +586,118 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
 
 
 
-        DocumentReference docRef = firebaseFirestore.collection("users").document(distressed_id);
-        final DocumentReference docRef2 = firebaseFirestore.collection("Pcr_Reports").document(deployment_id);
+                if(patAge == null || patient_gender ==null || patImage == null){
 
+                    Toast.makeText(PcrReport.this , "This patient not in system, please select his gender",Toast.LENGTH_LONG).show();
 
+                    String patient_age = patientAge.getText().toString();
 
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    progressDialog.dismiss();
-                    DocumentSnapshot document = task.getResult();
-                    assert document != null;
-                    if (document.exists()) {
-                        String name2 = task.getResult().getString("name");
-                        String age = task.getResult().getString("user_age");
-                        String sex = task.getResult().getString("gender");
-                        String image = task.getResult().getString("image");
+                    //patient_gender = "n/a";
 
 
 
 
-                        docRef2
-                                .update(
+
+                    docRef2
+                            .update(
 
 
-                                        "arrival_time",FieldValue.serverTimestamp(),
-                                        "diastol_read",diastol_read,
-                                        "emt_remarks",emtRmks,
-                                        "historical_illnesses",history_read,
-                                        "patient_age",age,
-                                        "patient_gender",sex,
-                                        "patient_image" , image,
-                                        "patient_name",name2,
-                                        "syastol_read",systol_read,
-                                        "temperature",temperatureRead,
-                                        "incident",incident_D
+                                    "arrival_time",FieldValue.serverTimestamp(),
+                                    "diastol_read",diastol_read,
+                                    "emt_remarks",emtRmks,
+                                    "historical_illnesses",history_read,
+                                    "patient_age",patient_age,
+                                    "patient_gender",patient_gender,
+                                    "patient_image" , "n/a",
+                                    "patient_name",patient,
+                                    "syastol_read",systol_read,
+                                    "temperature",temperatureRead,
+                                    "incident",incident_D
 
-                                )
+                            )
 
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
 
-                                        progressDialog.dismiss();
+                                    progressDialog.dismiss();
 
-                                        Toast.makeText(PcrReport.this,"Success Yes!!",Toast.LENGTH_LONG).show();
+                                    Toast.makeText(PcrReport.this,"Success Yes 1!!",Toast.LENGTH_LONG).show();
 
-                                        notifyDispatcher(deployment_id);
-
-
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        progressDialog.dismiss();
-
-                                        Toast.makeText(PcrReport.this,"Failure, check code please!!",Toast.LENGTH_LONG).show();
+                                    notifyDispatcher(deployment_id);
 
 
-                                    }
-                                });
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    progressDialog.dismiss();
+
+                                    Toast.makeText(PcrReport.this,"Failure, check code please 1 !!",Toast.LENGTH_LONG).show();
+
+
+                                }
+                            });
 
 
 //19-10-1996
-                    } else {
 
-                        progressDialog.dismiss();
-
-                        Toast.makeText(PcrReport.this, "DATA DOES NOT EXISTS,PLEASE CREATE YOUR MEDICAL ID", Toast.LENGTH_LONG).show();
+                }else{
 
 
+                    docRef2
+                            .update(
 
-                    }
-                } else {
 
-                    progressDialog.dismiss();
+                                    "arrival_time",FieldValue.serverTimestamp(),
+                                    "diastol_read",diastol_read,
+                                    "emt_remarks",emtRmks,
+                                    "historical_illnesses",history_read,
+                                    "patient_age",patAge,
+                                    "patient_gender",patGender,
+                                    "patient_image" , patImage,
+                                    "patient_name",patient,
+                                    "syastol_read",systol_read,
+                                    "temperature",temperatureRead,
+                                    "incident",incident_D
 
-                    String error = task.getException().getMessage();
-                    Toast.makeText(PcrReport.this, "(FIRESTORE RETRIEVE ERROR):" + error, Toast.LENGTH_LONG).show();
+                            )
+
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+
+                                    progressDialog.dismiss();
+
+                                    Toast.makeText(PcrReport.this,"Success Yes 2!!",Toast.LENGTH_LONG).show();
+
+                                    notifyDispatcher(deployment_id);
+
+
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    progressDialog.dismiss();
+
+                                    Toast.makeText(PcrReport.this,"Failure, check code please  2 !!",Toast.LENGTH_LONG).show();
+
+
+                                }
+                            });
+
+
+
+
+
 
 
                 }
 
 
-
-            }
-        });
-
-
-
-
+//19-10-1996
 
     }
 

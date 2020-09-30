@@ -227,6 +227,13 @@
         <item>Gluten Intolerance</item>
     </string-array>
 
+    <string-array name="gender">
+        <item>None</item>
+        <item>Male</item>
+        <item>Female</item>
+    </string-array>
+
+
     <string-array name="reasons_array">
         <item>None</item>
         <item>Vehicle mechanical issues</item>

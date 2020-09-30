@@ -72,7 +72,7 @@ public class DeploymentDetails extends AppCompatActivity {
     Handler handler = new Handler();
     Runnable runnable;
 
-    int delay = 10*1000; //Delay for 10 seconds.  One second = 1000 milliseconds.
+    int delay = 5*1000; //Delay for 10 seconds.  One second = 1000 milliseconds.
 
     private ListenerRegistration deploymentListener;
 
