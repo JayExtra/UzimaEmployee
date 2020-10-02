@@ -6,8 +6,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -55,11 +57,14 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.nbsp.materialfilepicker.MaterialFilePicker;
+import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 
 import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -67,24 +72,29 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseFirestore firebaseFirestore;
     private String user_id;
-    private ImageView mainImage;
-    private TextView usernameTxt, roleText, secondName;
+    private ImageView mainImage , backImage;
+    private TextView usernameTxt, roleText, secondName ;
     private Uri mainImageURI=null;
     private FloatingActionButton clockFloat;
     private CardView ambCard;
     private Button mPdf , mAudio;
 
+
     private static final int REQUEST_LOCATION = 1;
 
     private LocationManager locationManager;
     String latitude, longitude;
-    Dialog myDialog;
-    Button buttonYes;
-    TextView messagetXt;
+    Dialog myDialog ,myDialog2;
+    Button buttonYes , buttonShare;
+    TextView messagetXt ,documentPathText;
     //Spinner team, shift;
     public Context context;
     String firstName, ambulanceData,companyData,employeeId,userID, employeeName,employeeID, statusData,shiftData,teamData;
     Timestamp timeinData,timeoutData;
+
+    String filePath;
+
+    private int FILE_PICKER_REQUEST_CODE = 1000;
 
     double lat , lng;
 
@@ -102,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
         //initialize the progress dialog
         progressDialog = new ProgressDialog(this);
         myDialog=new Dialog(this);
+        myDialog2=new Dialog(this);
         mainImage = findViewById(R.id.main_activity_image);
         usernameTxt = findViewById(R.id.main_name);
          secondName = findViewById(R.id.second_name);
@@ -110,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
         ambCard = findViewById(R.id.ambulance_card);
         mPdf = findViewById(R.id.share_pdf);
         mAudio = findViewById(R.id.share_audio);
+
 
         //Request permission to access user location
         if(Build.VERSION.SDK_INT >= 23){
@@ -140,6 +152,15 @@ public class MainActivity extends AppCompatActivity {
         //getUserLocation();
 
 
+
+        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        !=PackageManager.PERMISSION_GRANTED){
+
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1001);
+        }
+
+
+
         Toolbar toolbar = findViewById(R.id.employee_interface_toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitleTextColor(getResources().getColor(android.R.color.white));
@@ -147,6 +168,10 @@ public class MainActivity extends AppCompatActivity {
 
         //check if user account is setup
         checkUserData();
+
+
+
+
 
 
         clockFloat.setOnClickListener(new View.OnClickListener() {
@@ -179,7 +204,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                sharePdf();
+                //open file picker
+                openFilePicker();
 
             }
         });
@@ -201,13 +227,70 @@ public class MainActivity extends AppCompatActivity {
     private void sharePdf(){
 
 
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath()
-                +  File.separator + "com.example.uzimaemployee" + File.separator);
-        intent.setDataAndType(uri, "*/*");
-        startActivity(Intent.createChooser(intent, "Open folder"));
+
+        //launch share dialog
+
+        //launch dialog
+        myDialog2.setContentView(R.layout.share_dialog);
+        documentPathText =  (TextView) myDialog2.findViewById(R.id.document_path);
+        backImage = myDialog2.findViewById(R.id.back_arrow);
+
+        documentPathText.setText(filePath);
+
+        buttonShare=(Button) myDialog2.findViewById(R.id.share_button);
+
+        buttonShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               //share pdf
+
+                Uri path = FileProvider.getUriForFile(MainActivity.this, "com.example.uzimaemployee.fileprovider", new File(filePath));
+
+                Intent shareIntent = new Intent();
+                shareIntent.setAction(Intent.ACTION_SEND);
+                shareIntent.putExtra(Intent.EXTRA_TEXT, "Pdf file for patient.");
+                shareIntent.putExtra(Intent.EXTRA_STREAM, path);
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                shareIntent.setType("doc/pdf");
+                startActivity(Intent.createChooser(shareIntent, "Share..."));
 
 
+            }
+        });
+
+        backImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                myDialog2.dismiss();
+            }
+        });
+
+        myDialog2.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        myDialog2.show();
+
+
+    }
+
+
+    private void openFilePicker() {
+
+         new MaterialFilePicker()
+                // Pass a source of context. Can be:
+                //    .withActivity(Activity activity)
+                //    .withFragment(Fragment fragment)
+                //    .withSupportFragment(androidx.fragment.app.Fragment fragment)
+                .withActivity(MainActivity.this)
+                // With cross icon on the right side of toolbar for closing picker straight away
+                //.withCloseMenu(true)
+                // Showing hidden files
+                .withHiddenFiles(true)
+                // Want to choose only jpg images
+                //.withFilter(Pattern.compile(".*\\.pdf$"))
+                // Don't apply filter to directories names
+                //.withFilterDirectories(false)
+
+                .withRequestCode(FILE_PICKER_REQUEST_CODE)
+                .start();
     }
 
 
@@ -313,9 +396,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.profile:
-                startActivity(new Intent(MainActivity.this, EmployeeProfile.class));
-                return true;
 
             case R.id.logout:
                 progressDialog.setMessage("Signing out...");
@@ -363,6 +443,10 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.contact_sup:
                 Toast.makeText(this, "contact was selected", Toast.LENGTH_SHORT).show();
+                return true;
+
+            case R.id.pcr_reports:
+                startActivity(new Intent(MainActivity.this , PcrReports.class));
                 return true;
 
             case R.id.clock_out:
@@ -486,18 +570,6 @@ public class MainActivity extends AppCompatActivity {
 
 
                                                         });
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -707,88 +779,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-/*
-    private void getUserLocation() {
-
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        //Check if gps is enabled
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-
-            OnGPS();
-
-        } else {
-            getLocation();
-        }
-    }
-
-    private void getLocation() {
-
-        //Check Permissions again
-
-        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this,
-
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]
-                    {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
-        } else {
-            Location LocationGps = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            Location LocationNetwork = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            Location LocationPassive = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-
-            if (LocationGps != null) {
-                double lat = LocationGps.getLatitude();
-                double longi = LocationGps.getLongitude();
-
-                latitude = String.valueOf(lat);
-                longitude = String.valueOf(longi);
-
-                Toast.makeText(MainActivity.this, "Your Location:" + "\n" + "Latitude= " + latitude + "\n" + "Longitude= " + longitude, Toast.LENGTH_SHORT).show();
-            } else if (LocationNetwork != null) {
-                double lat = LocationNetwork.getLatitude();
-                double longi = LocationNetwork.getLongitude();
-
-                latitude = String.valueOf(lat);
-                longitude = String.valueOf(longi);
-
-                Toast.makeText(MainActivity.this, "Your Location:" + "\n" + "Latitude= " + latitude + "\n" + "Longitude= " + longitude, Toast.LENGTH_SHORT).show();
-            } else if (LocationPassive != null) {
-                double lat = LocationPassive.getLatitude();
-                double longi = LocationPassive.getLongitude();
-
-                latitude = String.valueOf(lat);
-                longitude = String.valueOf(longi);
-
-                Toast.makeText(MainActivity.this, "Your Location:" + "\n" + "Latitude= " + latitude + "\n" + "Longitude= " + longitude, Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Can't Get Your Location", Toast.LENGTH_SHORT).show();
-            }
-
-            //Thats All Run Your App
-        }
-
-
-    }
-
-    private void OnGPS() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        builder.setMessage("Enable GPS").setCancelable(false).setPositiveButton("YES", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-            }
-        }).setNegativeButton("NO", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-                dialog.cancel();
-            }
-        });
-        final AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-    }*/
-
     void startService(){
         LocationBroadcastReceiver receiver = new LocationBroadcastReceiver();
         IntentFilter filter = new IntentFilter("ACTION_LOC");
@@ -818,6 +808,39 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1000 && resultCode == RESULT_OK) {
+            filePath = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
+            // Do anything with file
+           Toast.makeText(MainActivity.this , "Path:"+filePath ,Toast.LENGTH_LONG).show();
+           sharePdf();
+
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+       switch (requestCode){
 
 
+           case 1001:{
+
+
+               if(grantResults[0]==PackageManager.PERMISSION_GRANTED){
+
+                   Toast.makeText(this , "Permission granted",Toast.LENGTH_LONG).show();
+
+               }else{
+                   Toast.makeText(this , "Permission not granted",Toast.LENGTH_LONG).show();
+
+                   finish();
+               }
+           }
+       }
+
+
+    }
 }

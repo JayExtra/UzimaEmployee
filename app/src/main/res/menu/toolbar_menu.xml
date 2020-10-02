@@ -10,12 +10,16 @@
         android:icon="@drawable/ic_add_alert_black"
         app:showAsAction="ifRoom"
         android:title="Notifications" />
-    <item android:id="@+id/profile"
-    android:title="profile"
-    app:showAsAction="never"/>
-    <item android:id="@+id/contact_sup"
-        android:title="contact support"
+
+    <item android:id="@+id/pcr_reports"
+        android:title="pcr reports"
         app:showAsAction="never"/>
+  <!--  <item android:id="@+id/profile"
+    android:title="profile"
+    app:showAsAction="never"/>-->
+    <item android:id="@+id/contact_sup"
+    android:title="contact support"
+    app:showAsAction="never"/>
 
     <item android:id="@+id/clock_out"
         android:title="clock out"

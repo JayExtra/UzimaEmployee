@@ -21,6 +21,7 @@ import android.graphics.pdf.PdfDocument;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -254,6 +255,9 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
+                        Toast.makeText(PcrReport.this," this is USER",Toast.LENGTH_SHORT).show();
+
+
 
                         String name2 = task.getResult().getString("name");
                         String age = task.getResult().getString("user_age");
@@ -586,7 +590,8 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
 
 
 
-                if(patAge == null || patient_gender ==null || patImage == null){
+
+                if(patAge == null || patGender == null || patImage == null){
 
                     Toast.makeText(PcrReport.this , "This patient not in system, please select his gender",Toast.LENGTH_LONG).show();
 
@@ -608,7 +613,7 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
                                     "historical_illnesses",history_read,
                                     "patient_age",patient_age,
                                     "patient_gender",patient_gender,
-                                    "patient_image" , "n/a",
+                                    "patient_image" , null,
                                     "patient_name",patient,
                                     "syastol_read",systol_read,
                                     "temperature",temperatureRead,

@@ -20,6 +20,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".SingleReport"></activity>
+        <activity android:name=".PcrReports" />
         <activity android:name=".Notifications">
             <intent-filter>
                 <action android:name="in.com.example.uzimaemployee.TARGETNOTIFICATION" />
@@ -30,9 +32,7 @@
         <activity android:name=".VoiceRecorder" />
         <activity android:name=".PcrReport" />
         <activity android:name=".DeploymentDetails" />
-        <activity android:name=".Deployments">
-
-        </activity>
+        <activity android:name=".Deployments" />
         <activity android:name=".EmployeeCreation" />
         <activity android:name=".EditEmployeeProfile" />
         <activity android:name=".EmployeeProfile" />
@@ -58,12 +58,21 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
         <service android:name=".LocationService.LocationService" />
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/default_notification_channel_id" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.uzimaemployee.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>
