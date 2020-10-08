@@ -72,7 +72,7 @@ public class DeploymentDetails extends AppCompatActivity {
     Handler handler = new Handler();
     Runnable runnable;
 
-    int delay = 5*1000; //Delay for 10 seconds.  One second = 1000 milliseconds.
+    int delay = 3*1000; //Delay for 10 seconds.  One second = 1000 milliseconds.
 
     private ListenerRegistration deploymentListener;
 
@@ -234,10 +234,8 @@ public class DeploymentDetails extends AppCompatActivity {
             @Override
             public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
                 if (e != null) {
-                    Toast.makeText(DeploymentDetails.this, "Error while loading!", Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, e.toString());
-                    progressDialog.dismiss();
-                    return;
+
+
                 }
                 if (documentSnapshot.exists()) {
 
@@ -325,6 +323,8 @@ public class DeploymentDetails extends AppCompatActivity {
                             Log.d("HERE:", "onComplete: It is equal.Check done");
                             finishButton.setVisibility(View.INVISIBLE);
                             sendArrivalBtn.setVisibility(View.INVISIBLE);
+                            pcrButton.setVisibility(View.INVISIBLE);
+                            navButton.setVisibility(View.INVISIBLE);
 
                         }else{
 

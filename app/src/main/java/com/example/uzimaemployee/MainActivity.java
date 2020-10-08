@@ -449,6 +449,11 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this , PcrReports.class));
                 return true;
 
+
+            case R.id.my_stats:
+                startActivity(new Intent(MainActivity.this , StatisticsActivity.class));
+                return true;
+
             case R.id.clock_out:
                 clockOut();
                 return true;
