@@ -38,7 +38,7 @@ public class StatisticsActivity extends AppCompatActivity {
     private Geocoder geocoder;
     private ProgressBar mProgressBar;
 
-    private TextView doneTV , onGoingTV , totalTV;
+    private TextView doneTV , onGoingTV , totalTV ,totalPcr , viewPcr;
 
     private static final String TAG = "On going:";
 
@@ -78,6 +78,16 @@ public class StatisticsActivity extends AppCompatActivity {
         doneTV = findViewById(R.id.done_textview);
         onGoingTV = findViewById(R.id.on_going_text);
         totalTV = findViewById(R.id.total_deployments_text);
+        totalPcr = findViewById(R.id.pcr_total_text);
+        viewPcr = findViewById(R.id.text_view_reports);
+
+        viewPcr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(StatisticsActivity.this , PcrReports.class));
+                finish();
+            }
+        });
 
 
     }
@@ -90,7 +100,77 @@ public class StatisticsActivity extends AppCompatActivity {
         getTotalDispatch();
         getDoneDispatch();
         getOngoingDispatch();
+        //fetch driver id
+        getDriverId();
 
+    }
+
+    private void getTotalPcrReports() {
+
+
+
+        //get total reports
+        firebaseFirestore.collection("Pcr_Reports")
+                .whereEqualTo("employee_id" ,driverId)
+                .addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+
+                        if(error!= null){
+                            Toast.makeText(StatisticsActivity.this, "Error while loading!", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, error.toString());
+                            return;
+                        }
+
+
+                        List<String> documents = new ArrayList<>();
+                        for (QueryDocumentSnapshot doc : value) {
+                            if (doc.get("writer") != null) {
+                                documents.add(doc.getString("writer"));
+                            }
+                        }
+                        Log.d(TAG, "Total number of reports: " + documents);
+
+                        int size = documents.size();
+
+                        Log.d(TAG, "Total number of reports: " + size);
+
+                        String dSize = Integer.toString(size);
+
+                        totalPcr.setText(dSize);
+
+                    }
+                });
+
+    }
+
+    private void getDriverId() {
+
+        DocumentReference docRef = firebaseFirestore.collection("Employee_Details").document(user_id);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        driverId = task.getResult().getString("employee_id");
+                        Log.d(TAG, "Driver Id:" + driverId);
+
+                        getTotalPcrReports();
+
+
+                    } else {
+                        Log.d(TAG, "No such document");
+
+                        Toast.makeText(StatisticsActivity.this , "This employee does not exist",Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+
+                    Toast.makeText(StatisticsActivity.this , "get failed with"+task.getException(),Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private void getOngoingDispatch() {
@@ -110,6 +190,7 @@ public class StatisticsActivity extends AppCompatActivity {
                             Log.d(TAG, error.toString());
                             return;
                         }
+                        
 
                         List<String> documents = new ArrayList<>();
                         for (QueryDocumentSnapshot doc : value) {
