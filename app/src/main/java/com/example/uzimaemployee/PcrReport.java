@@ -504,6 +504,7 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
         userMap.put("employee_id",employeeId);
         userMap.put("ambulance",ambulance);
         userMap.put("hospital",hospitalTaken);
+        userMap.put("condition" , null);
 
 
 
@@ -617,7 +618,8 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
                                     "patient_name",patient,
                                     "syastol_read",systol_read,
                                     "temperature",temperatureRead,
-                                    "incident",incident_D
+                                    "incident",incident_D,
+                                    "condition","new"
 
                             )
 
@@ -665,7 +667,8 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
                                     "patient_name",patient,
                                     "syastol_read",systol_read,
                                     "temperature",temperatureRead,
-                                    "incident",incident_D
+                                    "incident",incident_D ,
+                                    "condition","new"
 
                             )
 
