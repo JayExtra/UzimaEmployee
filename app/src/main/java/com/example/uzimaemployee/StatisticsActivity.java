@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -25,8 +26,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.gson.JsonIOException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class StatisticsActivity extends AppCompatActivity {
@@ -44,6 +50,13 @@ public class StatisticsActivity extends AppCompatActivity {
 
 
     String driverId;
+    long millisecons_d;
+    long millisecons_a;
+
+    String a , result , result2;
+
+    int highScoreSoFar = 0;
+    long b;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,8 +120,6 @@ public class StatisticsActivity extends AppCompatActivity {
 
     private void getTotalPcrReports() {
 
-
-
         //get total reports
         firebaseFirestore.collection("Pcr_Reports")
                 .whereEqualTo("employee_id" ,driverId)
@@ -157,6 +168,7 @@ public class StatisticsActivity extends AppCompatActivity {
                         Log.d(TAG, "Driver Id:" + driverId);
 
                         getTotalPcrReports();
+                        calculateFastDispatch();
 
 
                     } else {
@@ -284,5 +296,82 @@ public class StatisticsActivity extends AppCompatActivity {
 
                     }
                 });
+    }
+
+    private void calculateFastDispatch(){
+
+
+        firebaseFirestore.collection("Dispatch_Times")
+                .whereEqualTo("u_id" , user_id)
+                .addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+
+                        if(error!= null){
+                            Toast.makeText(StatisticsActivity.this, "Error while calculating!", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, error.toString());
+                            return;
+                        }
+
+                        List<Long> times  = new ArrayList<>();
+                        ArrayList depIds = new ArrayList<>();
+
+
+                        ArrayList calculate = new ArrayList<>();
+
+                        JSONObject data = new JSONObject();
+
+                        for (QueryDocumentSnapshot doc : value) {
+                            if (doc.get("u_id") != null) {
+
+                                depIds.add(doc.getId());
+
+                                String depId = doc.getId();
+                              millisecons_d = doc.getTimestamp("departure_time").getSeconds();
+                                 millisecons_a = doc.getTimestamp("arrival_time").getSeconds();
+
+                                 long t_difference = millisecons_a - millisecons_d;
+
+                                 long minutes = t_difference/60;
+
+
+                                times.add(minutes);
+
+
+                                try{
+
+                                    data.put(a = depId ,b = minutes);
+
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+
+                                calculate.add(data);
+
+
+                            }
+
+
+
+
+                            //Log.d(TAG,"Time diferences are:" + times);
+                            //Log.d(TAG,"Deployment ids are:" + depIds);
+
+                            Log.d(TAG,"Final:" + calculate);
+
+
+                        }
+
+                    }
+                });
+
+
+
+
+
+
+
     }
 }

@@ -215,10 +215,38 @@ public class DeploymentDetails extends AppCompatActivity {
             public void onClick(View view) {
                 mProgressBar.setVisibility(View.VISIBLE);
                 sendNotification();
+                updateTime();
             }
         });
 
         
+
+
+    }
+
+    private void updateTime() {
+
+        DocumentReference dispRef = firebaseFirestore.collection("Dispatch_Times").document(emergency_post_id);
+
+// Set the "isCapital" field of the city 'DC'
+        dispRef
+                .update("arrival_time", FieldValue.serverTimestamp(),
+                        "u_id" , user_id
+                )
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "Time successfully updated!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error updating document", e);
+
+                        Toast.makeText(DeploymentDetails.this , "Error updating document"+e,Toast.LENGTH_SHORT).show();
+                    }
+                });
 
 
     }

@@ -42,7 +42,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firestore.v1.WriteResult;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -374,6 +377,12 @@ public class NotificationsRecyclerAdapter extends RecyclerView.Adapter<Notificat
                                                         d_status,d_location ,d_county ,d_description ,d_email ,d_incident , d_number ,
                                                         d_person ,d_uid ,drv_id , drv_identity , drv_number , drv_status ,my_id ,disp_condition);
 
+
+                                                updateMonthCount();
+
+
+
+
                                                 holder.mProgressBar.setVisibility(View.INVISIBLE);
 
 
@@ -385,6 +394,10 @@ public class NotificationsRecyclerAdapter extends RecyclerView.Adapter<Notificat
                                                sendToUserAdmin(d_ambulance,d_driver ,d_date ,
                                                         d_status,d_location ,d_county ,d_description ,d_email ,d_incident , d_number ,
                                                         d_person ,d_uid ,drv_id , drv_identity , drv_number , drv_status ,my_id,disp_condition);
+
+                                                updateMonthCount();
+
+
 
                                                 holder.mProgressBar.setVisibility(View.INVISIBLE);
 
@@ -451,6 +464,22 @@ public class NotificationsRecyclerAdapter extends RecyclerView.Adapter<Notificat
 
     }
 
+    private void updateMonthCount() {
+
+        //get todays month
+        Calendar cal=Calendar.getInstance();
+        SimpleDateFormat month_date = new SimpleDateFormat("MMMM");
+        String month_name = month_date.format(cal.getTime());
+
+        DocumentReference monthRef = mFirebaseFirestore.collection("Dispatch_Counts").document("Dispatches");
+
+// Atomically increment the population of the city by 50.
+        monthRef.update(month_name, FieldValue.increment(1));
+
+
+    }
+
+
     private void sendToAdmin(final String d_ambulance, final String d_driver, final String d_date, final String d_status,
                              final GeoPoint d_location, final String d_county, final String d_description, final String d_email,
                              final String d_incident, final String d_number, final String d_person, final String d_uid, final String drv_id,
@@ -493,6 +522,7 @@ public class NotificationsRecyclerAdapter extends RecyclerView.Adapter<Notificat
                         dispatchInfo.put("driver_number" , drv_number);
                         dispatchInfo.put("driver_status" , drv_status);
                         dispatchInfo.put("dispatch_condition" , disp_condition);
+                        dispatchInfo.put("time" ,FieldValue.serverTimestamp());
 
 
                         mFirebaseFirestore.collection("Dispatch_Records").document().set(dispatchInfo)
@@ -614,6 +644,7 @@ public class NotificationsRecyclerAdapter extends RecyclerView.Adapter<Notificat
                                         dispatchInfo.put("driver_number" , drv_number);
                                         dispatchInfo.put("driver_status" , drv_status);
                                         dispatchInfo.put("dispatch_condition" , disp_condition);
+                                        dispatchInfo.put("time" ,FieldValue.serverTimestamp());
 
                                         mFirebaseFirestore.collection("Dispatch_Records").document().set(dispatchInfo)
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
