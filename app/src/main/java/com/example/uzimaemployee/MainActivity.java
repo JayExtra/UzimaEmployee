@@ -454,6 +454,10 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this , StatisticsActivity.class));
                 return true;
 
+            case R.id.my_vehicle:
+                startActivity(new Intent(MainActivity.this , FuelServicing.class));
+                return true;
+
             case R.id.clock_out:
                 clockOut();
                 return true;

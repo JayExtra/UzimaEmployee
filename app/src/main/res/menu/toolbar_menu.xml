@@ -18,6 +18,10 @@
     <item android:id="@+id/my_stats"
         android:title="my stats"
         app:showAsAction="never"/>
+
+    <item android:id="@+id/my_vehicle"
+        android:title="my vehicle"
+        app:showAsAction="never"/>
   <!--  <item android:id="@+id/profile"
     android:title="profile"
     app:showAsAction="never"/>-->

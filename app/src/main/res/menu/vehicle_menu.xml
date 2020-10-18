@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/service_entry"
+        android:title="add service entry"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/fuel_entry"
+        android:title="add fuel entry"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/service_entry_list"
+        android:title="service entries"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/fuel_entry_list"
+        android:title="fuel entries"
+        app:showAsAction="never"/>
+
+</menu>

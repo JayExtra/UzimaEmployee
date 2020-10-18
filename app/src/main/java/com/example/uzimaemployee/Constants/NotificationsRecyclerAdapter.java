@@ -380,6 +380,8 @@ public class NotificationsRecyclerAdapter extends RecyclerView.Adapter<Notificat
 
                                                 updateMonthCount();
 
+                                                updateCountyCount(d_county);
+
 
 
 
@@ -396,6 +398,8 @@ public class NotificationsRecyclerAdapter extends RecyclerView.Adapter<Notificat
                                                         d_person ,d_uid ,drv_id , drv_identity , drv_number , drv_status ,my_id,disp_condition);
 
                                                 updateMonthCount();
+
+                                                updateCountyCount(d_county);
 
 
 
@@ -456,6 +460,61 @@ public class NotificationsRecyclerAdapter extends RecyclerView.Adapter<Notificat
 
 
 
+            }
+        });
+
+
+
+
+    }
+
+    private void updateCountyCount(String d_county) {
+
+
+        DocumentReference docRef = mFirebaseFirestore.collection("County_Dispatch").document(d_county);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+
+                        DocumentReference countyRef = mFirebaseFirestore.collection("County_Dispatch").document(d_county);
+
+// Atomically increment the county count  by 1.
+                        countyRef.update("count", FieldValue.increment(1));
+
+
+
+                    } else {
+                        Log.d(TAG, "No such document");
+
+                        Map<String ,Object> countMap = new HashMap<>();
+                        countMap.put("count" , 1);
+
+                        mFirebaseFirestore.collection("County_Dispatch").document(d_county)
+                                .set(countMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+
+                                Toast.makeText(context , "County count updated" , Toast.LENGTH_SHORT).show();
+
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+
+                                Toast.makeText(context , "Error on count updated"+e.getMessage() , Toast.LENGTH_SHORT).show();
+
+                                Log.d(TAG, "Error on count updated " + e.getMessage());
+
+                            }
+                        });
+                    }
+                } else {
+                    Log.d(TAG, "get failed at county count with ", task.getException());
+                }
             }
         });
 
