@@ -1,14 +1,18 @@
 package com.example.uzimaemployee;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PersistableBundle;
+import android.provider.CalendarContract;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,27 +25,38 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import org.joda.time.DateTime;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -55,6 +70,10 @@ public class FuelServicing extends AppCompatActivity {
     EditText stationTxt , transIdTxt , litresTxt , amountTxt;
     Button receiptBtn , submitFuelButton;
     TextView receiptUrl;
+
+    private TextView numbrPlt , vhclMke , vhvlChsis , amblncTyp ,ttlFuelCosts , ttlServcCost ,insrncExp , nxtSrvcDte;
+    private Button setReminder;
+    private ImageView ambImage;
 
 
     //servicing
@@ -73,6 +92,8 @@ public class FuelServicing extends AppCompatActivity {
     String user_id , ambulancePlate;
     String TAG = "FuelServicing";
 
+    Date scheduled_date;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -85,6 +106,7 @@ public class FuelServicing extends AppCompatActivity {
         user_id = mAuth.getCurrentUser().getUid();
         firebaseFirestore = FirebaseFirestore.getInstance();
         storageReference = FirebaseStorage.getInstance().getReference();
+
 
 
         //toolbar setup
@@ -106,10 +128,164 @@ public class FuelServicing extends AppCompatActivity {
         myDialog2 = new Dialog(this);
 
 
+        //Request permission to access user location
+        if(Build.VERSION.SDK_INT >= 23){
+            if(checkSelfPermission(Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED){
+                //Request Location
+                requestPermissions(new String[]{Manifest.permission.WRITE_CALENDAR} , 1 );
+
+            }else{
+                //Req location
+
+                Toast.makeText(FuelServicing.this , "Calendar permission okay",Toast.LENGTH_SHORT).show();
+
+
+
+            }
+        }else{
+            //start the location service
+
+            Toast.makeText(FuelServicing.this , "SDK version okay",Toast.LENGTH_SHORT).show();
+
+
+        }
+
+
+        //setup widgets
+        numbrPlt = findViewById(R.id.number_plt_txt);
+        vhclMke = findViewById(R.id.model_txt);
+        vhvlChsis = findViewById(R.id.casis_text);
+        amblncTyp = findViewById(R.id.ambulance_type_text);
+        ttlFuelCosts = findViewById(R.id.total_fuel_text);
+        ttlServcCost = findViewById(R.id.servicing_costs);
+        insrncExp = findViewById(R.id.date_insuarance_text);
+        nxtSrvcDte = findViewById(R.id.date_servicing_text);
+        setReminder = findViewById(R.id.button_servicing_reminder);
+        ambImage = findViewById(R.id.ambulance_image);
+
+
+        setReminder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(scheduled_date!=null){
+                    setServiceReminder();
+                }else{
+
+                    Toast.makeText(FuelServicing.this , "Cannot schedule date when the date is empty",Toast.LENGTH_SHORT).show();
+
+                }
+            }
+        });
+
+
+
         //fetch ambulance details
 
         fetchAmbulance();
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                fetchAmbulanceDetails();
+            }
+        }, 2000);
+
+
     }
+
+    private void setServiceReminder() {
+
+        //Date endDate = new DateTime(scheduled_date).plusMinutes(60).toDate();
+
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.setTime(scheduled_date);
+
+        long endDate = calendar.getTimeInMillis();
+
+
+        Intent intent = new Intent(Intent.ACTION_INSERT);
+        intent.setData(CalendarContract.Events.CONTENT_URI);
+        intent.putExtra(CalendarContract.Events.TITLE,"Vehicle Service Inspection");
+        intent.putExtra(CalendarContract.Events.DESCRIPTION,"Routine vehicle servicing and inspection");
+        intent.putExtra(CalendarContract.Events.EVENT_LOCATION,"Company service partner");
+        intent.putExtra(CalendarContract.Events.ALL_DAY,true);
+        intent.putExtra(CalendarContract.Events.DTSTART,scheduled_date);
+        intent.putExtra(CalendarContract.Events.DTEND,endDate);
+
+
+        if(intent.resolveActivity(getPackageManager())!=null){
+
+            startActivity(intent);
+
+
+        }else{
+            Toast.makeText(FuelServicing.this , "You have no app that can handle this type of action",Toast.LENGTH_SHORT).show();
+
+
+        }
+
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                loadFuelingTotal();
+                loadServiceTotal();
+                loadLastServiceDate();
+            }
+        }, 2000);
+
+    }
+
+    private void fetchAmbulanceDetails() {
+
+        DocumentReference docRef = firebaseFirestore.collection("Ambulances").document(ambulancePlate);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                       String model = task.getResult().getString("vehicle_make");
+                        String chasis = task.getResult().getString("chasis_number");
+                        String type = task.getResult().getString("vehicle_type");
+
+                        String image =  task.getResult().getString("front_image");
+
+                        Date date = task.getResult().getTimestamp("insuarance_expiry").toDate();
+
+                        SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                        String final_date = sfd.format(date);
+
+                        insrncExp.setText(final_date);
+
+                        numbrPlt.setText(ambulancePlate);
+                        vhclMke.setText(model);
+                        vhvlChsis.setText(chasis);
+                        amblncTyp.setText(type);
+
+                        Glide.with(FuelServicing.this).load(image).into(ambImage);
+
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+
+
+    }
+
+
 
     private void fetchAmbulance() {
 
@@ -293,6 +469,7 @@ public class FuelServicing extends AppCompatActivity {
                                                 updateGrandTotal(amount);
                                                 updateMonthTotal(amount);
                                                 createPersonalTotal(amount);
+                                                createGrandPersonalTotal(amount);
                                             }
                                         }).addOnFailureListener(new OnFailureListener() {
                                     @Override
@@ -320,6 +497,48 @@ public class FuelServicing extends AppCompatActivity {
             Toast.makeText(getApplicationContext() , "Please ensure that you have the receipt image",Toast.LENGTH_SHORT).show();
         }
 
+
+    }
+
+    private void createGrandPersonalTotal(int amount) {
+
+        DocumentReference docRef = firebaseFirestore.collection("Ambulances/"+ambulancePlate+"/Expenses").document("Gran_Fueling_Total");
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+
+                        DocumentReference monthRef = firebaseFirestore.collection("Ambulances/"+ambulancePlate+"/Expenses").document("Gran_Fueling_Total");
+// Atomically increment the population of the city by 50.
+                        monthRef.update("total", FieldValue.increment(amount));
+
+                    } else {
+                        Log.d(TAG, "No such document");
+
+                        Map<String , Object> monthMap = new HashMap<>();
+                        monthMap.put("total" , amount);
+                        firebaseFirestore.collection("Ambulances/"+ambulancePlate+"/Expenses").document("Gran_Fueling_Total")
+                                .set(monthMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+
+                                Toast.makeText(getApplicationContext() , "Done..",Toast.LENGTH_SHORT).show();
+
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(getApplicationContext() , "Failed at personal month increament.."+e.getMessage(),Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
 
     }
 
@@ -527,6 +746,7 @@ public class FuelServicing extends AppCompatActivity {
                                                 updateServiceGrandTotal(amount);
                                                 updateServiceMonthTotal(amount);
                                                 createServicePersonalTotal(amount);
+                                                createServiceGrandTotal(amount);
                                             }
                                         }).addOnFailureListener(new OnFailureListener() {
                                     @Override
@@ -554,6 +774,49 @@ public class FuelServicing extends AppCompatActivity {
             Toast.makeText(getApplicationContext() , "Please ensure that you have the receipt image",Toast.LENGTH_SHORT).show();
         }
 
+
+
+    }
+
+    private void createServiceGrandTotal(int amount) {
+
+        DocumentReference docRef = firebaseFirestore.collection("Ambulances/"+ambulancePlate+"/Expenses").document("Servicing_Grand_Total");
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+
+                        DocumentReference monthRef = firebaseFirestore.collection("Ambulances/"+ambulancePlate+"/Expenses").document("Servicing_Grand_Total");
+// Atomically increment the population of the city by 50.
+                        monthRef.update("total", FieldValue.increment(amount));
+
+                    } else {
+                        Log.d(TAG, "No such document");
+
+                        Map<String , Object> monthMap = new HashMap<>();
+                        monthMap.put("total" , amount);
+                        firebaseFirestore.collection("Ambulances/"+ambulancePlate+"/Expenses").document("Servicing_Grand_Total")
+                                .set(monthMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+
+                                Toast.makeText(getApplicationContext() , "Done..",Toast.LENGTH_SHORT).show();
+
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(getApplicationContext() , "Failed at personal total increament servicing.."+e.getMessage(),Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
 
 
     }
@@ -625,6 +888,99 @@ public class FuelServicing extends AppCompatActivity {
 
         DocumentReference washingtonRef = firebaseFirestore.collection("Servicing_Total").document("Grand_Total");
         washingtonRef.update("total", FieldValue.increment(amount));
+    }
+
+
+    //load totals
+
+    private void loadFuelingTotal(){
+
+        firebaseFirestore.collection("Ambulances/"+ambulancePlate+"/Expenses")
+                .document("Gran_Fueling_Total")
+                .addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                if (e != null) {
+                    Toast.makeText(FuelServicing.this, "Error while loading!", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, e.toString());
+                    return;
+                }
+                if (documentSnapshot.exists()) {
+                    String total = documentSnapshot.getLong("total").toString();
+                    ttlFuelCosts.setText("Ksh. "+total);
+
+                }
+            }
+        });
+
+    }
+
+    private void loadServiceTotal(){
+
+
+        firebaseFirestore.collection("Ambulances/"+ambulancePlate+"/Expenses")
+                .document("Servicing_Grand_Total")
+                .addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
+                    @Override
+                    public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Toast.makeText(FuelServicing.this, "Error while loading!", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, e.toString());
+                            return;
+                        }
+                        if (documentSnapshot.exists()) {
+                            String total = documentSnapshot.getLong("total").toString();
+                            ttlServcCost.setText("Ksh. "+total);
+
+                        }
+                    }
+                });
+
+
+    }
+
+    public void loadLastServiceDate(){
+
+        firebaseFirestore.collection("Servicing_Entries")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .limit(1)
+                .addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+
+                        if(error!= null){
+                            Toast.makeText(FuelServicing.this, "Error while loading!", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, error.toString());
+                            return;
+                        }
+
+                        for (QueryDocumentSnapshot doc : value) {
+                            if (doc.get("timestamp") != null) {
+
+                                Date date = doc.getTimestamp("timestamp").toDate();
+
+                                Date next_date = new DateTime(date).plusMonths(3).toDate();
+
+                                scheduled_date = next_date;
+
+                                SimpleDateFormat sfd = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                                String final_date = sfd.format(next_date);
+
+                                nxtSrvcDte.setText(final_date);
+
+
+                            }
+                        }
+
+                    }
+                });
+
+
+
+
+
+
+
     }
 
 
