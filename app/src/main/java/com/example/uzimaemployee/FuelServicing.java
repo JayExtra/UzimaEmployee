@@ -330,7 +330,8 @@ public class FuelServicing extends AppCompatActivity {
                 return true;
 
             case R.id.fuel_entry_list:
-                Toast.makeText(this , "fuel list selected",Toast.LENGTH_SHORT).show();
+               // Toast.makeText(this , "fuel list selected",Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(FuelServicing.this , FuelListings.class));
                 return true;
 
             case R.id.service_entry_list:
@@ -457,6 +458,7 @@ public class FuelServicing extends AppCompatActivity {
                                 fuelMap.put("amount" , amount);
                                 fuelMap.put("litres",litresVehicle);
                                 fuelMap.put("timestamp" , FieldValue.serverTimestamp());
+                                fuelMap.put("driver_id",user_id);
                                 fuelMap.put("receipt_image",download_uri.toString());
 
                                 firebaseFirestore.collection("Fuel_Entries").document()
@@ -733,6 +735,7 @@ public class FuelServicing extends AppCompatActivity {
                                 fuelMap.put("transaction_id" , transactionId);
                                 fuelMap.put("amount" , amount);
                                 fuelMap.put("service_type",service);
+                                fuelMap.put("driver_id",user_id);
                                 fuelMap.put("timestamp" , FieldValue.serverTimestamp());
                                 fuelMap.put("receipt_image",download_uri.toString());
 
