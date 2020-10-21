@@ -84,18 +84,20 @@
 
             <Button
                 android:id="@+id/button_view_receipt"
-                android:layout_width="135dp"
+                android:layout_width="match_parent"
                 android:layout_height="41dp"
+                android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="128dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp"
                 android:background="@color/colorAccent"
                 android:text="view receipt"
                 android:textColor="#F7FFFFFF"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/divider5"
-                app:layout_constraintVertical_bias="1.0" />
+                app:layout_constraintVertical_bias="0.35000002" />
 
             <View
                 android:id="@+id/divider5"
@@ -112,7 +114,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
                 android:fontFamily="sans-serif-medium"
                 android:text="date"
                 android:textColor="#3949AB"

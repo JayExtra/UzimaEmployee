@@ -335,7 +335,8 @@ public class FuelServicing extends AppCompatActivity {
                 return true;
 
             case R.id.service_entry_list:
-                Toast.makeText(this , "service list selected",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this , "service list selected",Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(FuelServicing.this , ServiceEntries.class));
                 return true;
 
         }

@@ -47,8 +47,6 @@ dependencies {
     implementation 'joda-time:joda-time:2.10.6'
 
 
-
-
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'com.android.support:multidex:1.0.3'
     api 'com.theartofdev.edmodo:android-image-cropper:2.8.+'
