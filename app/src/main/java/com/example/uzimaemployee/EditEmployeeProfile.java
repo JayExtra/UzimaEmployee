@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.AdapterView;
@@ -51,7 +52,7 @@ public class EditEmployeeProfile extends AppCompatActivity{
     private FloatingActionButton addButton;
     private Uri mainImageURI=null;
     private ImageView setupImage;
-    private EditText nameField,emailField,employeeIdField , secondName , phoneNumber;
+    private EditText nameField,emailField,employeeIdField , secondName , phoneNumber ,countyText;
     public boolean isChanged = false;
     private StorageReference storageReference;
     private FirebaseAuth mAuth;
@@ -84,6 +85,8 @@ public class EditEmployeeProfile extends AppCompatActivity{
         employeeIdField=findViewById(R.id.edit_id);
         secondName=findViewById(R.id.second_name);
         phoneNumber=findViewById(R.id.phone_number);
+        countyText = findViewById(R.id.county_edit_text);
+
 
       /*  ageSpinner = findViewById(R.id.age_spinner);
         sexSpinner = findViewById(R.id.sex_spinner);
@@ -157,6 +160,7 @@ public class EditEmployeeProfile extends AppCompatActivity{
             }
         });
 
+
         //send user data to the database
 
         addButton.setOnClickListener(new View.OnClickListener() {
@@ -176,6 +180,7 @@ public class EditEmployeeProfile extends AppCompatActivity{
 
     }
 
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -193,9 +198,10 @@ public class EditEmployeeProfile extends AppCompatActivity{
         final String employeeId= employeeIdField.getText().toString();
         final String sName= secondName.getText().toString();
         final String phnNum= phoneNumber.getText().toString();
+        final String county = countyText.getText().toString();
 
         if(!TextUtils.isEmpty(name)&&!TextUtils.isEmpty(email)
-                &&!TextUtils.isEmpty(employeeId)&&mainImageURI!=null && !TextUtils.isEmpty(sName) && !TextUtils.isEmpty(phnNum)){
+                &&!TextUtils.isEmpty(employeeId)&&mainImageURI!=null && !TextUtils.isEmpty(sName) && !TextUtils.isEmpty(phnNum) && !TextUtils.isEmpty(county)){
 
             if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
 
@@ -226,7 +232,7 @@ public class EditEmployeeProfile extends AppCompatActivity{
 
                                 //****call on method that will store the user data on the firestore database****
 
-                                storeFirestore(task,name,email,employeeId,phnNum,sName);
+                                storeFirestore(task,name,email,employeeId,phnNum,sName ,county);
 
 
                             } else {
@@ -247,7 +253,7 @@ public class EditEmployeeProfile extends AppCompatActivity{
                 }else {  //if profile image is not changed pass task as null therefore the user selects image again
 
 
-                    storeFirestore(null, name,email,employeeId,phnNum,sName);
+                    storeFirestore(null, name,email,employeeId,phnNum,sName , county);
                     Toast.makeText(EditEmployeeProfile.this, "FIRESTORE ERROR 1:", Toast.LENGTH_LONG).show();
 
                 }
@@ -356,7 +362,7 @@ public class EditEmployeeProfile extends AppCompatActivity{
     //******adding user details  into firestore database ***********
 
     private void storeFirestore(@NonNull Task<UploadTask.TaskSnapshot>task, final String name,
-                                final String email, final String employeeId , final  String phnNum , final String scndName) {
+                                final String email, final String employeeId , final  String phnNum , final String scndName , final String county) {
 
         //****hash map for storing user details in fire base cloud storage**************
 
@@ -378,6 +384,7 @@ public class EditEmployeeProfile extends AppCompatActivity{
                     userMap.put("email",email);
                     userMap.put("phone_number",phnNum);
                     userMap.put("user_id",user_id);
+                    userMap.put("county",county);
 
 
 
@@ -387,9 +394,27 @@ public class EditEmployeeProfile extends AppCompatActivity{
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
-                                    Toast.makeText(EditEmployeeProfile.this,"Your profile was successfully updated",Toast.LENGTH_LONG).show();
+                                    DocumentReference imgRef = firebaseFirestore.collection("Employee").document(employeeId);
 
-                                    startActivity(new Intent(EditEmployeeProfile.this,EmployeeProfile.class));
+// Set the "isCapital" field of the city 'DC'
+                                    imgRef
+                                            .update("drivers_image", download_uri.toString())
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+
+                                                    Toast.makeText(EditEmployeeProfile.this,"Employee details Updated",Toast.LENGTH_LONG).show();
+                                                    startActivity(new Intent(EditEmployeeProfile.this,EmployeeProfile.class));
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Toast.makeText(EditEmployeeProfile.this,"Employee details failed to Update"+e.getMessage(),Toast.LENGTH_LONG).show();
+
+                                                }
+                                            });
+
 
                                 }
                             })
@@ -436,16 +461,35 @@ public class EditEmployeeProfile extends AppCompatActivity{
                     userMap.put("email",email);
                     userMap.put("phone_number",phnNum);
                     userMap.put("user_id",user_id);
+                    userMap.put("county",county);
 
+                    Uri finalDownload_uri = download_uri;
                     firebaseFirestore.collection("Employee_Details").document(user_id)
                             .update(userMap)
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
-                                    Toast.makeText(EditEmployeeProfile.this,"Employee id  Updated",Toast.LENGTH_LONG).show();
 
-                                    startActivity(new Intent(EditEmployeeProfile.this,EmployeeProfile.class));
+                                    DocumentReference imgRef = firebaseFirestore.collection("Employee").document(employeeId);
 
+// Set the "isCapital" field of the city 'DC'
+                                    imgRef
+                                            .update("drivers_image", finalDownload_uri.toString())
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+
+                                                    Toast.makeText(EditEmployeeProfile.this,"Employee details Updated",Toast.LENGTH_LONG).show();
+                                                    startActivity(new Intent(EditEmployeeProfile.this,EmployeeProfile.class));
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Toast.makeText(EditEmployeeProfile.this,"Employee details failed to Update"+e.getMessage(),Toast.LENGTH_LONG).show();
+
+                                                }
+                                            });
 
                                 }
                             })
@@ -513,6 +557,7 @@ public class EditEmployeeProfile extends AppCompatActivity{
                         String phone= task.getResult().getString("phone_number");
                         String empId = task.getResult().getString("employee_id");
                         String email = task.getResult().getString("email");
+                        String county = task.getResult().getString("county");
 
 
 
@@ -528,6 +573,7 @@ public class EditEmployeeProfile extends AppCompatActivity{
                         phoneNumber.setText(phone);
                         secondName.setText(sName);
                         employeeIdField.setText(empId);
+                        countyText.setText(county);
 
 
                         //******replacing the dummy image with real profile picture******

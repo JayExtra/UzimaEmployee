@@ -23,6 +23,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
@@ -33,6 +34,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -136,6 +138,8 @@ public class EmployeeCreation extends AppCompatActivity {
                         final String gender = task.getResult().getString("gender");
                         final String contacts = task.getResult().getString("contact");
                         final String email = task.getResult().getString("email");
+                        final String county = task.getResult().getString("county");
+
 
 
 
@@ -163,6 +167,9 @@ public class EmployeeCreation extends AppCompatActivity {
                                         userMap.put("gender",gender);
                                         userMap.put("phone_number",contacts);
                                         userMap.put("email" ,email);
+                                        userMap.put("county" ,county);
+
+
 
 
 

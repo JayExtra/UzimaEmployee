@@ -79,14 +79,16 @@ public class MainActivity extends AppCompatActivity {
     private CardView ambCard;
     private Button mPdf , mAudio;
 
+    String empId;
+
 
     private static final int REQUEST_LOCATION = 1;
 
     private LocationManager locationManager;
     String latitude, longitude;
-    Dialog myDialog ,myDialog2;
-    Button buttonYes , buttonShare;
-    TextView messagetXt ,documentPathText;
+    Dialog myDialog ,myDialog2 , myDialog3;
+    Button buttonYes , buttonShare , buttonOk;
+    TextView messagetXt ,documentPathText , warningText;
     //Spinner team, shift;
     public Context context;
     String firstName, ambulanceData,companyData,employeeId,userID, employeeName,employeeID, statusData,shiftData,teamData;
@@ -97,6 +99,10 @@ public class MainActivity extends AppCompatActivity {
     private int FILE_PICKER_REQUEST_CODE = 1000;
 
     double lat , lng;
+
+    Handler handler = new Handler();
+    Runnable runnable;
+    int delay = 20*1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,6 +119,8 @@ public class MainActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(this);
         myDialog=new Dialog(this);
         myDialog2=new Dialog(this);
+        myDialog3=new Dialog(this);
+
         mainImage = findViewById(R.id.main_activity_image);
         usernameTxt = findViewById(R.id.main_name);
          secondName = findViewById(R.id.second_name);
@@ -136,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         startService();
+                        getDriverId();
                     }
                 }, 2000);
 
@@ -146,10 +155,14 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     startService();
+                    getDriverId();
                 }
             }, 3000);
         }
         //getUserLocation();
+
+
+
 
 
 
@@ -209,6 +222,173 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+
+
+
+    }
+
+
+    @Override
+    protected void onResume() {
+        //start handler as activity become visible
+
+        handler.postDelayed( runnable = new Runnable() {
+            public void run() {
+                //do something
+
+                checkSuspensionDriver();
+
+                handler.postDelayed(runnable, delay);
+            }
+        }, delay);
+
+        super.onResume();
+    }
+
+// If onPause() is not included the threads will double up when you
+// reload the activity
+
+    @Override
+    protected void onPause() {
+        handler.removeCallbacks(runnable); //stop handler when activity not visible
+        super.onPause();
+    }
+
+
+    private void checkSuspensionDriver(){
+
+
+
+
+
+
+        DocumentReference docRef = firebaseFirestore.collection("Suspended_Employees").document(empId);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+
+                        deleteShift();
+
+                        String reason = task.getResult().getString("reason");
+
+                        //String message = "Your account has been temporarily suspended. "+reason;
+
+                        myDialog3.setContentView(R.layout.warning_dialog);
+
+                        warningText = myDialog3.findViewById(R.id.warning_message_txt);
+                        buttonOk = myDialog3.findViewById(R.id.button_ok_dialog);
+
+                        warningText.setText(reason);
+
+
+                        buttonOk.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                myDialog3.dismiss();
+                            }
+                        });
+
+
+
+
+                        myDialog3.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                        myDialog3.show();
+
+
+
+                    } else {
+
+                        Toast.makeText(MainActivity.this, "This user doesn't exist", Toast.LENGTH_SHORT).show();
+
+                    }
+                } else {
+
+                    Toast.makeText(MainActivity.this, "Failed to retrieve id", Toast.LENGTH_SHORT).show();
+
+                }
+            }
+        });
+
+
+
+
+
+
+
+
+
+    }
+
+    private void deleteShift() {
+
+        String status = "unavailable";
+
+        Map<String, Object> shiftMap= new HashMap<>();
+
+        shiftMap.put("Status",status);
+        shiftMap.put("time_out", FieldValue.serverTimestamp());
+
+        firebaseFirestore.collection("Daily_Shift").document(user_id)
+                .update(shiftMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(MainActivity.this,"  Success!!",Toast.LENGTH_LONG).show();
+
+                        startShiftCollection();
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                        Toast.makeText(MainActivity.this,"FIRESTORE ERROR: Could not store",Toast.LENGTH_LONG).show();
+
+                        finish();
+
+                    }
+
+
+                });
+
+
+
+    }
+
+
+    private void getDriverId(){
+
+        DocumentReference docRef = firebaseFirestore.collection("Employee_Details").document(user_id);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+
+                        String employeeId = task.getResult().getString("employee_id");
+                        empId = employeeId;
+
+                    } else {
+
+                        Toast.makeText(MainActivity.this, "This user doesn't exist", Toast.LENGTH_SHORT).show();
+
+                    }
+                } else {
+
+                    Toast.makeText(MainActivity.this, "Failed to retrieve id", Toast.LENGTH_SHORT).show();
+
+                }
+            }
+        });
+
+
+
 
 
 

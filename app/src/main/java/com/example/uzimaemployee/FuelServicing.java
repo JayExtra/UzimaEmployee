@@ -3,6 +3,7 @@ package com.example.uzimaemployee;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -28,6 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -71,7 +73,9 @@ public class FuelServicing extends AppCompatActivity {
     Button receiptBtn , submitFuelButton;
     TextView receiptUrl;
 
-    private TextView numbrPlt , vhclMke , vhvlChsis , amblncTyp ,ttlFuelCosts , ttlServcCost ,insrncExp , nxtSrvcDte;
+    private TextView numbrPlt , vhclMke , vhvlChsis , amblncTyp ,ttlFuelCosts , ttlServcCost ,insrncExp , nxtSrvcDte ,clockOutShift;
+    String firstName, ambulanceData,companyData,employeeId,userID, employeeName,employeeID, statusData,shiftData,teamData;
+    Timestamp timeinData,timeoutData;
     private Button setReminder;
     private ImageView ambImage;
 
@@ -79,18 +83,22 @@ public class FuelServicing extends AppCompatActivity {
     //servicing
     EditText garageTxtVw , serviceDesc , transIdServ , amountServ;
     Button receiptServeBtn , submitServButton;
-    TextView receiptServUrl;
+    TextView receiptServUrl , reasonText;
 
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore firebaseFirestore;
     private StorageReference storageReference;
 
+    private CardView warningCard;
+
     private Uri postImageUri1 = null;
     private Uri postImageUri12 = null;
 
     String user_id , ambulancePlate;
     String TAG = "FuelServicing";
+
+    private ProgressDialog progressDialog;
 
     Date scheduled_date;
 
@@ -162,6 +170,13 @@ public class FuelServicing extends AppCompatActivity {
         nxtSrvcDte = findViewById(R.id.date_servicing_text);
         setReminder = findViewById(R.id.button_servicing_reminder);
         ambImage = findViewById(R.id.ambulance_image);
+        reasonText = findViewById(R.id.reason_txt);
+        warningCard = findViewById(R.id.warning_card);
+
+        clockOutShift = findViewById(R.id.clock_out_shift);
+
+        progressDialog = new ProgressDialog(this);
+
 
 
         setReminder.setOnClickListener(new View.OnClickListener() {
@@ -175,6 +190,15 @@ public class FuelServicing extends AppCompatActivity {
                     Toast.makeText(FuelServicing.this , "Cannot schedule date when the date is empty",Toast.LENGTH_SHORT).show();
 
                 }
+            }
+        });
+
+        clockOutShift.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                progressDialog.setMessage(" Clocking out...");
+                progressDialog.show();
+                clockOut();
             }
         });
 
@@ -239,9 +263,38 @@ public class FuelServicing extends AppCompatActivity {
                 loadFuelingTotal();
                 loadServiceTotal();
                 loadLastServiceDate();
+                checkVehicleImpound();
             }
         }, 2000);
 
+    }
+
+    private void checkVehicleImpound() {
+
+        firebaseFirestore.collection("Impounded_Vehicles")
+                .document(ambulancePlate)
+                .addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
+                    @Override
+                    public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Toast.makeText(FuelServicing.this, "Error while loading!", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, e.toString());
+                            return;
+                        }
+                        if (documentSnapshot.exists()) {
+
+                            warningCard.setVisibility(View.VISIBLE);
+                            String reason = documentSnapshot.getString("reason");
+                            reasonText.setText(reason);
+
+
+                        }else{
+
+                            warningCard.setVisibility(View.GONE);
+
+                        }
+                    }
+                });
     }
 
     private void fetchAmbulanceDetails() {
@@ -1020,6 +1073,162 @@ public class FuelServicing extends AppCompatActivity {
         }
 
 
+    }
+
+
+    public void clockOut(){
+
+        String status = "unavailable";
+
+        Map<String, Object> shiftMap= new HashMap<>();
+
+        shiftMap.put("Status",status);
+        shiftMap.put("time_out", FieldValue.serverTimestamp());
+
+        firebaseFirestore.collection("Daily_Shift").document(user_id)
+                .update(shiftMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(FuelServicing.this,"  Success!!",Toast.LENGTH_LONG).show();
+
+                        startShiftCollection();
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                        Toast.makeText(FuelServicing.this,"FIRESTORE ERROR: Could not store",Toast.LENGTH_LONG).show();
+
+                        finish();
+
+                    }
+
+
+                });
+
+
+
+
+    }
+
+    public void startShiftCollection(){
+
+
+        DocumentReference docRef = firebaseFirestore.collection("Daily_Shift").document(user_id);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+
+                        Toast.makeText(FuelServicing.this, "Processing....", Toast.LENGTH_LONG).show();
+
+                        firstName = task.getResult().getString("first_name");
+                        employeeId = task.getResult().getString("employee_id");
+                        timeinData = task.getResult().getTimestamp("time_in");
+                        timeoutData = task.getResult().getTimestamp("time_out");
+                        statusData = task.getResult().getString("Status");
+                        companyData = task.getResult().getString("company");
+                        ambulanceData = task.getResult().getString("ambulance");
+                        userID = task.getResult().getString("user_id");
+
+
+                        //******create new shift database here
+                        startDatabaseCreation();
+
+//19-10-1996
+                    } else {
+
+
+                    }
+                } else {
+
+                    String error = task.getException().getMessage();
+                    Toast.makeText(FuelServicing.this, "(FIRESTORE RETRIEVE ERROR):" + error, Toast.LENGTH_LONG).show();
+
+
+                }
+
+
+
+            }
+        });
+
+
+
+
+
+
+    }
+
+    public void startDatabaseCreation(){
+
+        Map<String, Object> shiftMap= new HashMap<>();
+
+
+        shiftMap.put("name", firstName);
+        shiftMap.put("employee_id", employeeId);
+        shiftMap.put("Status",statusData);
+        shiftMap.put("time_in", timeinData);
+        shiftMap.put("time_out", timeoutData);
+        shiftMap.put("ambulance", ambulanceData);
+        shiftMap.put("user_id", user_id);
+
+        firebaseFirestore.collection("Daily_Shift_Records").document()
+                .set(shiftMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+
+
+                        Toast.makeText(FuelServicing.this,"  Success!!",Toast.LENGTH_LONG).show();
+
+                        deleteRecord();
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                        Toast.makeText(FuelServicing.this,"FIRESTORE ERROR: Could not store",Toast.LENGTH_LONG).show();
+
+                        finish();
+
+                    }
+
+
+                });
+
+
+
+
+    }
+
+    public void deleteRecord(){
+
+        firebaseFirestore.collection("Daily_Shift").document(user_id)
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(FuelServicing.this,"  Success on Delete!!",Toast.LENGTH_LONG).show();
+
+                        progressDialog.dismiss();
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(FuelServicing.this,"  Success on Delete!!",Toast.LENGTH_LONG).show();
+                    }
+                });
     }
 
 }
