@@ -15,12 +15,15 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Geocoder;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,6 +55,7 @@ public class DeploymentDetails extends AppCompatActivity {
     private String user_id;
     private Geocoder geocoder;
     private ProgressBar mProgressBar;
+    private ImageButton imageBtn;
 
     private TextView titleText, incidentText , patientPhone, callNumber, descriptionText , userName , depStatus;
     private Button navButton , pcrButton,finishButton , sendArrivalBtn;
@@ -66,8 +70,9 @@ public class DeploymentDetails extends AppCompatActivity {
     private String emergency_post_id , latitude , longitude;
     String number, distrUid;
     private ProgressDialog progressDialog;
-    Dialog myDialog;
-    Button yesBtn, noBtn;
+    Dialog myDialog , myDialog2;
+    Button yesBtn, noBtn ,closeBtn;
+    ImageView emImageVw;
 
     Handler handler = new Handler();
     Runnable runnable;
@@ -107,6 +112,7 @@ public class DeploymentDetails extends AppCompatActivity {
 
         //setup of widgets
         myDialog=new Dialog(this);
+        myDialog2=new Dialog(this);
         progressDialog = new ProgressDialog(this);
 
         titleText =findViewById(R.id.title_text);
@@ -120,6 +126,8 @@ public class DeploymentDetails extends AppCompatActivity {
         userName =findViewById(R.id.user_name);
         depStatus = findViewById(R.id.text_status);
         mProgressBar = findViewById(R.id.details_progressbar);
+
+        imageBtn = findViewById(R.id.view_image_btn);
 
         sendArrivalBtn = findViewById(R.id.btn_arrival);
 
@@ -216,6 +224,62 @@ public class DeploymentDetails extends AppCompatActivity {
                 mProgressBar.setVisibility(View.VISIBLE);
                 sendNotification();
                 updateTime();
+            }
+        });
+
+        imageBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //launch dialog
+                myDialog2.setContentView(R.layout.fuel_receipt_dialog);
+                emImageVw= myDialog2.findViewById(R.id.receipt_image);
+                closeBtn = myDialog2.findViewById(R.id.button_close_dialog);
+
+
+                DocumentReference docRef = firebaseFirestore.collection("Dispatch_Records").document(emergency_post_id);
+                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                             String imageUrl = task.getResult().getString("image");
+
+                             if(imageUrl!=null){
+
+                                 Glide.with(DeploymentDetails.this).load(imageUrl).into(emImageVw);
+                             }else{
+
+                                 RequestOptions placeholderRequest = new RequestOptions();
+                                 placeholderRequest.placeholder(R.drawable.user_img);
+
+                             }
+
+
+
+                            } else {
+                                Log.d(TAG, "No such document");
+                            }
+                        } else {
+                            Log.d(TAG, "get failed with ", task.getException());
+                        }
+                    }
+                });
+
+                closeBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        myDialog2.dismiss();
+                    }
+                });
+
+
+                myDialog2.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                myDialog2.show();
+
+
+
             }
         });
 
