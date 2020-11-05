@@ -104,6 +104,7 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
                 Intent intent = new Intent(PcrReport.this , DeploymentDetails.class);
                 intent.putExtra("DOCUMENT_ID" , deployment_id);
                 startActivity(intent);
+                finish();
             }
         });
 
@@ -360,6 +361,7 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
                     if(document.exists()){
 
                         String cndtn = task.getResult().getString("dispatch_condition");
+                        String depName = task.getResult().getString("distressed_person");
                         String condition = "reported";
 
                         if(cndtn.equals(condition)){
@@ -370,7 +372,8 @@ public class PcrReport extends AppCompatActivity implements  AdapterView.OnItemS
                             patientAge.setVisibility(View.VISIBLE);
                             spinnerGender.setVisibility(View.VISIBLE);
 
-                            patient = name2;
+                            patient = depName;
+                            nameText.setText(depName);
 
 
                         }else{

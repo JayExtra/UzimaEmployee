@@ -398,7 +398,12 @@ public class EditEmployeeProfile extends AppCompatActivity{
 
 // Set the "isCapital" field of the city 'DC'
                                     imgRef
-                                            .update("drivers_image", download_uri.toString())
+                                            .update("drivers_image", download_uri.toString(),
+                                                    "contact" , phnNum,
+                                                    "email" , email,
+                                                    "county" , county,
+                                                    "second_name" , scndName,
+                                                    "first_name",name)
                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void aVoid) {

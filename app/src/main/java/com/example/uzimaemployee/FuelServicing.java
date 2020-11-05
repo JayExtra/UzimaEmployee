@@ -114,6 +114,8 @@ public class FuelServicing extends AppCompatActivity {
         user_id = mAuth.getCurrentUser().getUid();
         firebaseFirestore = FirebaseFirestore.getInstance();
         storageReference = FirebaseStorage.getInstance().getReference();
+        //fetch ambulance details
+        fetchAmbulance();
 
 
 
@@ -204,9 +206,7 @@ public class FuelServicing extends AppCompatActivity {
 
 
 
-        //fetch ambulance details
 
-        fetchAmbulance();
 
         new Handler().postDelayed(new Runnable() {
             @Override

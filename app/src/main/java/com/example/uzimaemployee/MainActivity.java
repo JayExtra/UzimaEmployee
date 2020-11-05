@@ -27,6 +27,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.StrictMode;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
@@ -72,7 +73,8 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseFirestore firebaseFirestore;
     private String user_id;
-    private ImageView mainImage , backImage;
+    private ImageView mainImage;
+    private ImageView backImage;
     private TextView usernameTxt, roleText, secondName ;
     private Uri mainImageURI=null;
     private FloatingActionButton clockFloat;
@@ -172,6 +174,9 @@ public class MainActivity extends AppCompatActivity {
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1001);
         }
 
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+
 
 
         Toolbar toolbar = findViewById(R.id.employee_interface_toolbar);
@@ -208,7 +213,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                shareAudio();
+                //shareAudio();
+                openFilePicker();
 
             }
         });
@@ -406,8 +412,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void sharePdf(){
 
-
-
         //launch share dialog
 
         //launch dialog
@@ -424,14 +428,23 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                //share pdf
 
-                Uri path = FileProvider.getUriForFile(MainActivity.this, "com.example.uzimaemployee.fileprovider", new File(filePath));
+                //Uri path = FileProvider.getUriForFile(MainActivity.this, "com.example.uzimaemployee.fileprovider", new File(filePath));
+
+                File file = new File(filePath);
+
+                if(!file.exists()){
+
+                    Toast.makeText(MainActivity.this , "This file does not exist" , Toast.LENGTH_SHORT).show();
+                    return;
+
+                }
 
                 Intent shareIntent = new Intent();
+                shareIntent.setType("doc/pdf");
+                shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://"+file));
                 shareIntent.setAction(Intent.ACTION_SEND);
                 shareIntent.putExtra(Intent.EXTRA_TEXT, "Pdf file for patient.");
-                shareIntent.putExtra(Intent.EXTRA_STREAM, path);
                 shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                shareIntent.setType("doc/pdf");
                 startActivity(Intent.createChooser(shareIntent, "Share..."));
 
 

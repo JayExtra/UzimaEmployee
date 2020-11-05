@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,12 +20,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.uzimaemployee.R;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-public class FuelsRecyclerAdapter extends RecyclerView.Adapter<FuelsRecyclerAdapter.ViewHolder> {
+public class FuelsRecyclerAdapter extends RecyclerView.Adapter<FuelsRecyclerAdapter.ViewHolder>{
 
     public List<Fuels> fuelsList;
+   // public List<Fuels> allFuelList;
     public Context context;
 
     Dialog myDialog;
@@ -32,6 +37,7 @@ public class FuelsRecyclerAdapter extends RecyclerView.Adapter<FuelsRecyclerAdap
 
     public FuelsRecyclerAdapter(List<Fuels>fuelsList){
         this.fuelsList = fuelsList;
+        //this.allFuelList = new ArrayList<>(fuelsList);
     }
 
     @NonNull
@@ -100,6 +106,48 @@ public class FuelsRecyclerAdapter extends RecyclerView.Adapter<FuelsRecyclerAdap
 
         }
     }
+
+   // @Override
+   // public Filter getFilter() {
+   //     return filter;
+  //  }
+
+
+//runs on background thread
+   // Filter filter = new Filter() {
+      //  @Override
+      //  protected FilterResults performFiltering(CharSequence charSequence) {
+        //   List<Fuels> filteredList = new ArrayList<>();
+//
+         //   if(charSequence.toString().isEmpty()){
+                //filteredList.addAll(allFuelList);
+
+         //   }else{
+          //      for(Fuels fuel : allFuelList){
+
+          //          if(fuel.getDocId().toLowerCase().contains(charSequence.toString().toLowerCase())){
+                       // filteredList.add(fuel);
+           //         }
+
+           //     }
+          //  }
+
+        //    FilterResults filterResults = new FilterResults();
+         //   filterResults.values = filteredList;
+         //   return null;
+     //   }
+
+        //runs on ui thread
+       // @Override
+      //  protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+
+        //    fuelsList.clear();
+         //   fuelsList.addAll((Collection<? extends Fuels>) filterResults.values);
+          //  notifyDataSetChanged();
+
+//
+   //     }
+  //  };
 
     public class ViewHolder extends RecyclerView.ViewHolder{
 

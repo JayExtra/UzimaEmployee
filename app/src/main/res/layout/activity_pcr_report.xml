@@ -259,7 +259,7 @@
                 android:background="@drawable/circle_shape_border"
                 android:ems="10"
                 android:hint="Temperature"
-                android:inputType="textPersonName" />
+                android:inputType="number" />
 
             <Spinner
                 android:id="@+id/history_spinner"
