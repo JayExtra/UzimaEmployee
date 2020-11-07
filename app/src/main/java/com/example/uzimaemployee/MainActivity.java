@@ -635,7 +635,9 @@ public class MainActivity extends AppCompatActivity {
 
 
             case R.id.contact_sup:
-                Toast.makeText(this, "contact was selected", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "contact was selected", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(MainActivity.this , ContactSupport.class));
+                finish();
                 return true;
 
             case R.id.pcr_reports:

@@ -22,7 +22,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ServiceEntries"></activity>
+        <activity android:name=".ContactSupport"></activity>
+        <activity android:name=".ServiceEntries" />
         <activity android:name=".StatisticsActivity" />
         <activity android:name=".SingleReport" />
         <activity android:name=".PcrReports" />
