@@ -493,8 +493,6 @@ public class MainActivity extends AppCompatActivity {
         progressDialog.show();
 
 
-
-
         DocumentReference docRef = firebaseFirestore.collection("Employee_Details").document(user_id);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -521,19 +519,24 @@ public class MainActivity extends AppCompatActivity {
                         usernameTxt.setText(f_name);
                         roleText.setText(e_role);
 
+                        if (image2 == null){
 
-                        mainImageURI = Uri.parse(image2);
+                            RequestOptions placeholderRequest = new RequestOptions();
+                            placeholderRequest.placeholder(R.drawable.user_img);
 
-                        //******replacing the dummy image with real profile picture******
+                        }else{
 
-                        RequestOptions placeholderRequest = new RequestOptions();
-                        placeholderRequest.placeholder(R.drawable.user_img);
+                            mainImageURI = Uri.parse(image2);
 
-                        Glide.with(MainActivity.this).setDefaultRequestOptions(placeholderRequest).load(image2).into(mainImage);
+                            //******replacing the dummy image with real profile picture******
+
+                            RequestOptions placeholderRequest = new RequestOptions();
+                            placeholderRequest.placeholder(R.drawable.user_img);
+
+                            Glide.with(MainActivity.this).setDefaultRequestOptions(placeholderRequest).load(image2).into(mainImage);
 
 
-
-
+                        }
 
 
 //19-10-1996

@@ -99,52 +99,12 @@ public class RegisterActivity extends AppCompatActivity {
                     if(task.isSuccessful()){
                         //user is successfully registered start main domicile activity and log in
 
-                        String token_id = FirebaseInstanceId.getInstance().getToken();
-                        String current_id = mAuth.getCurrentUser().getUid();
 
-                        Map<String, Object> tokenMap = new HashMap<>();
-                        tokenMap.put("token_id" , token_id);
+                        sendVerificationEmail();
 
-                        mFirebaseFirestore.collection("Employee_Details").document(current_id).update(tokenMap)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-
-                                        sendVerificationEmail();
-
-                                        finish();
-                                        startActivity(new Intent(getApplicationContext(),LoginActivity.class));
-                                        Toast.makeText(RegisterActivity.this,"Registration Successful",Toast.LENGTH_SHORT).show();
-
-
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-
-                                Toast.makeText(RegisterActivity.this, "Error Here :.." + e.getMessage(),Toast.LENGTH_SHORT).show();
-
-                                mFirebaseFirestore.collection("Employee_Details").document(current_id).set(tokenMap)
-                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                Toast.makeText(RegisterActivity.this , "token map created" , Toast.LENGTH_SHORT).show();
-                                                finish();
-                                                startActivity(new Intent(getApplicationContext(),LoginActivity.class));
-                                                Toast.makeText(RegisterActivity.this,"Registration Successful",Toast.LENGTH_SHORT).show();
-                                            }
-                                        }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-
-                                        Toast.makeText(RegisterActivity.this, "Error Here :.." + e.getMessage(),Toast.LENGTH_SHORT).show();
-
-
-                                    }
-                                });
-
-                            }
-                        });
+                        finish();
+                        startActivity(new Intent(getApplicationContext(),LoginActivity.class));
+                        Toast.makeText(RegisterActivity.this,"Registration Successful",Toast.LENGTH_SHORT).show();
 
 
 

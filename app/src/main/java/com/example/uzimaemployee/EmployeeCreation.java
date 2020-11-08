@@ -33,6 +33,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -126,6 +127,9 @@ public class EmployeeCreation extends AppCompatActivity {
 
                         Toast.makeText(EmployeeCreation.this, " Creating....", Toast.LENGTH_LONG).show();
 
+                        String token_id = FirebaseInstanceId.getInstance().getToken();
+                       // String current_id = mAuth.getCurrentUser().getUid();
+
 
 
 
@@ -168,6 +172,7 @@ public class EmployeeCreation extends AppCompatActivity {
                                         userMap.put("phone_number",contacts);
                                         userMap.put("email" ,email);
                                         userMap.put("county" ,county);
+                                        userMap.put("token_id" , token_id);
 
 
 
